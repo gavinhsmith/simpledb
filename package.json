@@ -1,0 +1,20 @@
+{
+  "name": "SimpleDatabase",
+  "version": "1.0.0",
+  "description": "A node module for creating/managing easy-access SQLite databases.",
+  "main": "./dist/index.js",
+  "repository": "https://github.com/gavinhsmith/SimpleDatabase.git",
+  "author": "gavinhsmith <me@gavinhsmith.com> (https://gavinhsmith.com)",
+  "license": "MIT",
+  "private": false,
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2"
+  },
+  "scripts": {
+    "ts:build": "tsc",
+    "ts:watch": "tsc --watch",
+    "start": "node ."
+  }
+}
