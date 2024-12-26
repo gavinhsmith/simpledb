@@ -89,7 +89,6 @@ out
 
 # Nuxt.js build / generate output
 .nuxt
-dist
 
 # Gatsby files
 .cache/
@@ -129,8 +128,10 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-# Type Dir
-types/
+# Typescript/Dev Files (npm Doesnt need these)
+src/
+tsconfig.json
+nodemon.json
 
 # Sqlite3 Temp Files
 *.db
