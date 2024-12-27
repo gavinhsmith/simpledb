@@ -1,10 +1,10 @@
 {
   "name": "@gavinhsmith/simpledatabase",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "A node module for creating/managing easy-access SQLite databases.",
   "type": "module",
   "main": "./dist/Database.js",
-  "types": "./types",
+  "types": "./types/Database.d.ts",
   "repository": "https://github.com/gavinhsmith/SimpleDatabase.git",
   "author": "gavinhsmith <me@gavinhsmith.com> (https://gavinhsmith.com)",
   "license": "MIT",

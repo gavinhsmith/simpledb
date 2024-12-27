@@ -130,6 +130,8 @@ out
 
 # Typescript/Dev Files (npm Doesnt need these)
 src/
+dist/tests/
+types/tests/
 tsconfig.json
 nodemon.json
 
