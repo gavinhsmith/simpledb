@@ -17,12 +17,12 @@ export default function testCreateTable(): Promise<void> {
     db.create<{ id: number; column: string }>("test_table", [
       {
         name: "id",
-        type: DataType.INT,
+        type: "INTENGER",
         isPrimaryKey: true,
       },
       {
         name: "column",
-        type: DataType.STRING,
+        type: "TEXT",
       },
     ])
       .then((_table) => {
