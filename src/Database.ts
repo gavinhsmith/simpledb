@@ -1,4 +1,3 @@
-import { join } from "path";
 import sqlite3 from "sqlite3";
 import Table, { EntryData } from "./Table.js";
 import { execOnDatabase, queryOnDatabase } from "./executor.js";
@@ -26,7 +25,7 @@ export default class Database {
         this.db = new sqliteToUse.Database(":memory:");
         break;
       default:
-        this.db = new sqliteToUse.Database(join(process.cwd(), file));
+        this.db = new sqliteToUse.Database(file);
         break;
     }
   }
