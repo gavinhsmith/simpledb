@@ -1,5 +1,5 @@
 import Database from "../Database.js";
-import { DataType, TableColumnSettings } from "../DatabaseTypes.js";
+import { DataType } from "../DatabaseTypes.js";
 import Table from "../Table.js";
 
 function rejectMessage(error: Error) {

@@ -1,7 +1,7 @@
-import sqlite3 from "sqlite3";
-import { execOnDatabase, queryOnDatabase } from "./executor.js";
-import Column, { ColumnSearcherFunction } from "./Column.js";
-import { DataType } from "./DatabaseTypes.js";
+import { Database as DB } from "sqlite3";
+import { execOnDatabase, queryOnDatabase } from "./executor";
+import Column, { ColumnSearcherFunction } from "./Column";
+import { DataType } from "./DatabaseTypes";
 import { rejects } from "assert";
 
 /** The base type of entry data types. */
@@ -10,7 +10,7 @@ export type EntryData = { [key: string]: any };
 /** A Table within a Database. */
 export default class Table<T extends EntryData> {
   /** The SQLite instance to utilize. */
-  private db: sqlite3.Database;
+  private db: DB;
   /** The name of the table. */
   private name: string;
 
@@ -19,7 +19,7 @@ export default class Table<T extends EntryData> {
    * @param sql The SQLite3 reference from the Database.
    * @param name The name of the table.
    */
-  constructor(sql: sqlite3.Database, name: string) {
+  constructor(sql: DB, name: string) {
     this.db = sql;
     this.name = name;
   }

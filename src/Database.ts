@@ -1,14 +1,14 @@
-import sqlite3 from "sqlite3";
-import Table, { EntryData } from "./Table.js";
-import { execOnDatabase, queryOnDatabase } from "./executor.js";
-import { TableColumnSettings } from "./DatabaseTypes.js";
+import { verbose, Database as DB } from "sqlite3";
+import Table, { EntryData } from "./Table";
+import { execOnDatabase, queryOnDatabase } from "./executor";
+import { TableColumnSettings } from "./DatabaseTypes";
 
-let verboseSqlite3 = sqlite3.verbose();
+let verboseSqlite3 = verbose();
 
 /** A Simple Database. */
 export default class Database {
   /** The SQLite Database instance to connect with. */
-  private db: sqlite3.Database;
+  private db: DB;
   /** The file path to the database, or "memory" if in-memory. */
   private path: string;
 
@@ -19,13 +19,13 @@ export default class Database {
    */
   constructor(file: string, verbose: boolean = false) {
     this.path = file;
-    let sqliteToUse = verbose ? verboseSqlite3 : sqlite3;
+    let DBConstructor = verbose ? verboseSqlite3.Database : DB;
     switch (file) {
       case "memory":
-        this.db = new sqliteToUse.Database(":memory:");
+        this.db = new DBConstructor(":memory:");
         break;
       default:
-        this.db = new sqliteToUse.Database(file);
+        this.db = new DBConstructor(file);
         break;
     }
   }
@@ -154,7 +154,7 @@ export default class Database {
    * Gets the SQLite3 Database instance.
    * @returns The instace that the Database uses.
    */
-  public getSQLiteInstance(): sqlite3.Database {
+  public getSQLiteInstance(): DB {
     return this.db;
   }
 
