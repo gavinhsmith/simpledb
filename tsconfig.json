@@ -4,7 +4,7 @@
     "declaration": true,
     "declarationDir": "types/",
     "outDir": "dist/",
-    "module": "ESNext",
-    "moduleResolution": "node"
+    "module": "NodeNext",
+    "esModuleInterop": true
   }
 }

@@ -1,4 +1,4 @@
-import { Database as DB } from "sqlite3";
+import sqlite3 from "sqlite3";
 
 /**
  * Executes a query on a Database.
@@ -8,7 +8,7 @@ import { Database as DB } from "sqlite3";
  * @returns A promise which resolves if successful, or rejects if an error occured.
  */
 export function execOnDatabase(
-  db: DB,
+  db: sqlite3.Database,
   sql: string,
   ...paramaters: any[]
 ): Promise<void> {
@@ -32,7 +32,7 @@ export function execOnDatabase(
  * @returns A promise contains an array of the requested data, or rejects if an error occured.
  */
 export function queryOnDatabase<T>(
-  db: DB,
+  db: sqlite3.Database,
   sql: string,
   ...paramaters: any[]
 ): Promise<T[]> {
