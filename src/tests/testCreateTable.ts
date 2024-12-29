@@ -26,9 +26,15 @@ export default function testCreateTable(): Promise<void> {
       },
     ])
       .then((_table) => {
-        new Table(db.getSQLiteInstance(), "test_table")
+        db.table("test_table")
           .exists()
-          .then(resolve)
+          .then((exists) => {
+            if (exists) {
+              resolve();
+            } else {
+              reject(new Error('Table "test_table" does not exist.'));
+            }
+          })
           .catch((error: Error) => {
             reject(rejectMessage(error));
           });

@@ -28,31 +28,27 @@ export default class Table<T extends EntryData> {
   /**
    * Checks if the table/a column exists.
    * @param column The column to check, will check if the table exists if left blank.
-   * @returns A promise that resolves if it exists, and rejects if it does not.
+   * @returns A promise that resolves to a boolean, or rejects if an error occurs.
    */
-  public exists(column?: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-      // No Column: SELECT name FROM sqlite_master WHERE type='table' AND name='{table}';
-      // Column: See Column.exists().
+  public exists(column?: string): Promise<boolean> {
+    // No Column: SELECT name FROM sqlite_master WHERE type='table' AND name='{table}';
+    // Column: See Column.exists().
 
-      if (column != null) {
-        return this.column(column).exists();
-      } else {
+    if (column != null) {
+      return this.column(column).exists();
+    } else {
+      return new Promise((resolve, reject) => {
         queryOnDatabase(
           this.db,
           "SELECT name FROM sqlite_master WHERE type='table' AND name=(?);",
           this.name
         )
           .then((rows) => {
-            if (rows.length >= 1) {
-              resolve();
-            } else {
-              reject(new Error("Table does not exist."));
-            }
+            resolve(rows.length >= 1);
           })
           .catch(reject);
-      }
-    });
+      });
+    }
   }
 
   /**

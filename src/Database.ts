@@ -33,9 +33,9 @@ export default class Database {
   /**
    * Checks if a table exists on the Database.
    * @param table The name of the table.
-   * @returns A promise that resolves this table currently exists, and rejects if it does not.
+   * @returns A promise that resolves to a boolean, or rejects if an error occurs.
    */
-  public exists(table: string): Promise<void> {
+  public exists(table: string): Promise<boolean> {
     return this.table(table).exists();
   }
 

@@ -34,9 +34,9 @@ export default class Column<T, K extends EntryData> {
   /**
    * Checks if the column/an entry exists.
    * @param content The entry to check, will check if the column exists if left blank.
-   * @returns A promise that resolves if the item exists, or rejects if it doesnt.
+   * @returns A promise that resolves to a boolean, or rejects if an error occurs.
    */
-  public exists(entry?: T): Promise<void> {
+  public exists(entry?: T): Promise<boolean> {
     return new Promise((resolve, reject) => {
       // No Entry: SELECT COUNT(*) AS CNTREC FROM pragma_table_info({table}) WHERE name={column};
       // Entry: SELECT * FROM {table} WHERE {column}={entry};
@@ -50,11 +50,7 @@ export default class Column<T, K extends EntryData> {
           entry
         )
           .then((rows) => {
-            if (rows.length >= 1) {
-              resolve();
-            } else {
-              reject(new Error("Entry does not exist."));
-            }
+            resolve(rows.length >= 1);
           })
           .catch(reject);
       } else {
@@ -65,11 +61,7 @@ export default class Column<T, K extends EntryData> {
           this.name
         )
           .then((rows: [{ CNTREC: number }]) => {
-            if (rows[0].CNTREC >= 1) {
-              resolve();
-            } else {
-              reject(new Error("Column does not exist."));
-            }
+            resolve(rows[0].CNTREC >= 1);
           })
           .catch(reject);
       }

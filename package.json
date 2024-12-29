@@ -23,9 +23,10 @@
     "ts:build": "tsc",
     "ts:watch": "tsc --watch",
     "clear": "rimraf ./dist ./types",
+    "build": "npm-run-all clear ts:build",
     "test": "node ./dist/tests/test.js",
     "dev:test": "nodemon ./dist/tests/test.js",
-    "dev": "npm-run-all clear ts:build --parallel ts:watch dev:test --print-label",
-    "prepublish": "npm-run-all clear ts:build"
+    "dev": "npm-run-all build --parallel ts:watch dev:test --print-label",
+    "prepublish": "npm-run-all build"
   }
 }
