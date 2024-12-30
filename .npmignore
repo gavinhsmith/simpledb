@@ -129,6 +129,7 @@ out
 .pnp.*
 
 # Typescript/Dev Files (npm Doesnt need these)
+.github/
 /src/
 /dist/tests/
 tsconfig.json
