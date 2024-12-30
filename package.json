@@ -1,6 +1,6 @@
 {
   "name": "@gavinhsmith/simpledb",
-  "version": "1.0.1",
+  "version": "1.0.1-2",
   "description": "A node module for creating/managing easy-access SQLite databases.",
   "keywords": [
     "database",
