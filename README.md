@@ -1,4 +1,4 @@
-# SimpleDatabase
+# simpledb
 
 A node module for creating/managing easy-access SQLite databases.
 
@@ -13,13 +13,13 @@ Install shutdown via your favorite package manager.
 ### NPM
 
 ```shell
-npm install @gavinhsmith/SimpleDatabase
+npm install @gavinhsmith/simpledb
 ```
 
 ### Yarn
 
 ```shell
-yarn add @gavinhsmith/SimpleDatabase
+yarn add @gavinhsmith/simpledb
 ```
 
 ## Usage
@@ -28,7 +28,7 @@ Include in your project create a new instace of the Database class.
 
 ```ts
 // Import the module.
-import Database from "@gavinhsmith/SimpleDatabase";
+import Database from "@gavinhsmith/simpledb";
 
 // Load the database.
 const db = new Database("file.db");
