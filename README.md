@@ -2,9 +2,9 @@
 
 A node module for creating/managing easy-access SQLite databases.
 
-![NPM Version](https://img.shields.io/npm/v/%40gavinhsmith%2Fsimpledatabase?style=flat-square&label=NPM%20Version&labelColor=cc3838&color=f0f0f0)
-![NPM Downloads](https://img.shields.io/npm/d18m/%40gavinhsmith%2Fsimplesatabase?style=flat-square&label=NPM%20Downloads&labelColor=cc3838&color=f0f0f0)
-![License](https://img.shields.io/github/license/gavinhsmith/SimpleDatabase?style=flat-square&label=Licence&color=f0f0f0)
+![NPM Version](https://img.shields.io/npm/v/%40gavinhsmith%2Fsimpledb?style=flat-square&label=NPM%20Version&labelColor=cc3838&color=f0f0f0)
+![NPM Downloads](https://img.shields.io/npm/d18m/%40gavinhsmith%2Fsimpledb?style=flat-square&label=NPM%20Downloads&labelColor=cc3838&color=f0f0f0)
+![License](https://img.shields.io/github/license/gavinhsmith/simpledb?style=flat-square&label=Licence&color=f0f0f0)
 
 ## Install
 

@@ -1,14 +1,24 @@
 {
-  "name": "@gavinhsmith/simpledatabase",
-  "version": "1.1.1",
+  "name": "@gavinhsmith/simpledb",
+  "version": "1.0.0",
   "description": "A node module for creating/managing easy-access SQLite databases.",
   "type": "module",
   "main": "./dist/Database.js",
   "types": "./dist/Database.d.ts",
-  "repository": "https://github.com/gavinhsmith/SimpleDatabase.git",
-  "author": "gavinhsmith <me@gavinhsmith.com> (https://gavinhsmith.com)",
-  "license": "MIT",
   "private": false,
+  "publishConfig": {
+    "access": "public"
+  },
+  "author": "gavinhsmith <me@gavinhsmith.com> (https://gavinhsmith.com)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gavinhsmith/simpledb.git"
+  },
+  "bugs": {
+    "url": "https://github.com/gavinhsmith/simpledb/issues"
+  },
+  "homepage": "https://github.com/gavinhsmith/simpledb#readme",
+  "license": "MIT",
   "dependencies": {
     "sqlite3": "^5.1.7"
   },

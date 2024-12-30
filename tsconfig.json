@@ -5,7 +5,7 @@
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    "sourceRoot": "https://raw.githubusercontent.com/gavinhsmith/SimpleDatabase/refs/heads/main/src/",
+    "sourceRoot": "https://raw.githubusercontent.com/gavinhsmith/simpledb/refs/heads/main/src/",
     "module": "NodeNext",
     "esModuleInterop": true
   }
