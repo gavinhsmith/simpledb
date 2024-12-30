@@ -129,8 +129,9 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-# Type Dir
-types/
+# Build Files
+/dist/
+/types/
 
 # Sqlite3 Temp Files
 *.db

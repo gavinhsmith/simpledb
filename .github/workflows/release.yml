@@ -20,16 +20,11 @@ jobs:
         run: yarn install
       - name: "Build Module"
         run: yarn run build --print-label
-      - name: "Export dist/ as Artifact"
+      - name: "Export as Artifact"
         uses: actions/upload-artifact@v4
         with:
           name: dist
           path: dist
-      - name: "Export tests/ as Artifact"
-        uses: actions/upload-artifact@v4
-        with:
-          name: tests
-          path: tests
 
   deploy-npm:
     name: "Publish to NPM 🚀"
@@ -49,6 +44,8 @@ jobs:
           registry-url: "https://registry.npmjs.org"
           token: ${{ secrets.NPM_TOKEN }}
           always-auth: true
+      - name: "Install Packages"
+        run: yarn install
       - name: "Publish Package"
         run: yarn publish --access=public
         env:
@@ -72,6 +69,8 @@ jobs:
           registry-url: "https://npm.pkg.github.com"
           token: ${{ secrets.GITHUB_TOKEN }}
           always-auth: true
+      - name: "Install Packages"
+        run: yarn install
       - name: "Publish Package"
         run: yarn publish --access=public
         env:

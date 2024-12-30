@@ -1,10 +1,10 @@
 {
   "name": "@gavinhsmith/simpledatabase",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "A node module for creating/managing easy-access SQLite databases.",
   "type": "module",
   "main": "./dist/Database.js",
-  "types": "./types/Database.d.ts",
+  "types": "./dist/Database.d.ts",
   "repository": "https://github.com/gavinhsmith/SimpleDatabase.git",
   "author": "gavinhsmith <me@gavinhsmith.com> (https://gavinhsmith.com)",
   "license": "MIT",
@@ -21,11 +21,11 @@
     "typescript": "^5.7.2"
   },
   "scripts": {
-    "clear": "rimraf ./dist ./types",
+    "clear": "rimraf ./dist",
     "ts:build": "tsc",
     "ts:watch": "tsc --watch",
     "build": "npm-run-all clear ts:build",
-    "test": "node ./tests/test.js",
+    "test": "node ./dist/tests/test.js",
     "test:dist": "nodemon ./dist/tests/test.js",
     "test:src": "nodemon ./src/tests/test.ts",
     "dev:dist": "npm-run-all build --parallel ts:watch test:dist --print-label",

@@ -1,9 +1,11 @@
 {
   "compilerOptions": {
     "rootDir": "src/",
-    "declaration": true,
-    "declarationDir": "types/",
     "outDir": "dist/",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "sourceRoot": "https://raw.githubusercontent.com/gavinhsmith/SimpleDatabase/refs/heads/main/src/",
     "module": "NodeNext",
     "esModuleInterop": true
   }
