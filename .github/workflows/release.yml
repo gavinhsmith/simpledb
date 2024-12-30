@@ -7,7 +7,7 @@ on:
 jobs:
   build:
     name: "Build Module 🚧"
-    environment: Publish
+    environment: Deploy
     runs-on: ubuntu-latest
     steps:
       - name: "Checkout Repository"
@@ -19,17 +19,17 @@ jobs:
       - name: "Install Packages"
         run: yarn install
       - name: "Build Module"
-        run: yarn run build:module --print-label
+        run: yarn run build --print-label
       - name: "Export dist/ as Artifact"
         uses: actions/upload-artifact@v4
         with:
           name: dist
           path: dist
-      - name: "Export types/ as Artifact"
+      - name: "Export tests/ as Artifact"
         uses: actions/upload-artifact@v4
         with:
-          name: types
-          path: types
+          name: tests
+          path: tests
 
   deploy-npm:
     name: "Publish to NPM 🚀"
