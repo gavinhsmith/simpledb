@@ -23,12 +23,12 @@
   "scripts": {
     "clear": "rimraf ./dist",
     "build:ts": "tsc",
-    "build": "npm-run-all clear ts:build",
-    "dev:build:ts": "tsc --watch",
+    "build": "npm-run-all clear build:ts",
     "test": "node ./dist/tests/test.js",
+    "dev:build:ts": "tsc --watch",
     "dev:nodemon": "nodemon ./dist/tests/test.js",
     "dev:nodemon:src": "nodemon ./src/tests/test.ts",
-    "dev:src": "npm-run-all test:src --print-label",
-    "dev": "npm-run-all build --parallel ts:watch test:dist --print-label"
+    "dev:src": "npm-run-all dev:nodemon:src --print-label",
+    "dev": "npm-run-all build --parallel dev:build:ts dev:nodemon --print-label"
   }
 }
