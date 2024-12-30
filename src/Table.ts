@@ -96,21 +96,21 @@ export default class Table<T extends EntryData> {
   public create<K>(column: string, type: DataType): Promise<Column<K, T>> {
     return new Promise((resolve, reject) => {
       this.exists(column)
-        .then(() => {
-          reject(new Error("Column already exists."));
-        })
-        .catch((_error) => {
-          // ALTER TABLE {table} ADD COLUMN {name} {type};
+        .then((exists) => {
+          if (!exists) {
+            // ALTER TABLE {table} ADD COLUMN {name} {type};
 
-          execOnDatabase(
-            this.db,
-            `ALTER TABLE ${this.name} ADD COLUMN ${column} ${type};`
-          )
-            .then(() => {
-              resolve(this.column<K>(column));
-            })
-            .catch(reject);
-        });
+            execOnDatabase(
+              this.db,
+              `ALTER TABLE ${this.name} ADD COLUMN ${column} ${type};`
+            )
+              .then(() => {
+                resolve(this.column<K>(column));
+              })
+              .catch(reject);
+          } else reject(new Error("Column already exists."));
+        })
+        .catch(reject);
     });
   }
 
@@ -122,17 +122,21 @@ export default class Table<T extends EntryData> {
   public drop(column: string): Promise<void> {
     return new Promise((resolve, reject) => {
       this.exists(column)
-        .then(() => {
-          // ALTER TABLE {table} DROP COLUMN {name};
+        .then((exists) => {
+          if (exists) {
+            // ALTER TABLE {table} DROP COLUMN {name};
 
-          execOnDatabase(
-            this.db,
-            `ALTER TABLE ${this.name} DROP COLUMN ${column};`
-          )
-            .then(() => {
-              resolve();
-            })
-            .catch(reject);
+            execOnDatabase(
+              this.db,
+              `ALTER TABLE ${this.name} DROP COLUMN ${column};`
+            )
+              .then(() => {
+                resolve();
+              })
+              .catch(reject);
+          } else {
+            reject(new Error("Column does not exist."));
+          }
         })
         .catch(reject);
     });

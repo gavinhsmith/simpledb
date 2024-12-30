@@ -1,0 +1,43 @@
+name: CI Tests 🔧
+
+on:
+  push:
+    paths:
+      - "**.ts"
+
+jobs:
+  check_exists:
+    name: "Check for Previous Workflow Run"
+    runs-on: ubuntu-latest
+    outputs:
+      should_skip: ${{ steps.skip_check.outputs.should_skip }}
+    steps:
+      - name: "Load Previous Run Data"
+        id: skip_check
+        uses: fkirc/skip-duplicate-actions@v5
+        with:
+          skip_after_successful_duplicate: "true"
+          concurrent_skipping: "same_content"
+
+  build:
+    name: "CI Testing"
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        node: [22]
+    runs-on: ${{ matrix.os }}
+    needs: check_exists
+    if: ${{ needs.check_exists.outputs.should_skip != 'true' }}
+    steps:
+      - name: "Checkout Repository"
+        uses: actions/checkout@v4
+      - name: "Setup Node v${{ matrix.node }} for ${{ matrix.os }}"
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - name: "Install Packages"
+        run: yarn install
+      - name: "Build Module/Tests"
+        run: yarn run build --print-label
+      - name: "Run Tests"
+        run: yarn run test

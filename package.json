@@ -1,6 +1,6 @@
 {
   "name": "@gavinhsmith/simpledatabase",
-  "version": "1.0.10",
+  "version": "1.1.0",
   "description": "A node module for creating/managing easy-access SQLite databases.",
   "type": "module",
   "main": "./dist/Database.js",
@@ -17,16 +17,19 @@
     "nodemon": "^3.1.9",
     "npm-run-all": "^4.1.5",
     "rimraf": "^6.0.1",
+    "tsx": "^4.19.2",
     "typescript": "^5.7.2"
   },
   "scripts": {
+    "clear": "rimraf ./dist ./types",
     "ts:build": "tsc",
     "ts:watch": "tsc --watch",
-    "clear": "rimraf ./dist ./types",
     "build": "npm-run-all clear ts:build",
-    "test": "node ./dist/tests/test.js",
-    "dev:test": "nodemon ./dist/tests/test.js",
-    "dev": "npm-run-all build --parallel ts:watch dev:test --print-label",
+    "test": "node ./tests/test.js",
+    "test:dist": "nodemon ./dist/tests/test.js",
+    "test:src": "nodemon ./src/tests/test.ts",
+    "dev:dist": "npm-run-all build --parallel ts:watch test:dist --print-label",
+    "dev": "npm-run-all test:src --print-label",
     "prepublish": "npm-run-all build"
   }
 }

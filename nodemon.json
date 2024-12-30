@@ -1,5 +1,8 @@
 {
-  "watch": ["dist/"],
-  "ext": "js,mjs,cjs,json",
+  "execMap": {
+    "ts": "tsx"
+  },
+  "watch": ["src/", "dist/"],
+  "ext": "ts,js,json",
   "signal": "SIGTERM"
 }

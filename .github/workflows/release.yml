@@ -1,0 +1,78 @@
+name: Deploy to NPM/GitHub 🚀
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  build:
+    name: "Build Module 🚧"
+    environment: Publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout Repository"
+        uses: actions/checkout@v4
+      - name: "Setup Node v${{ vars.NODE_VERSION }}"
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ vars.NODE_VERSION }}
+      - name: "Install Packages"
+        run: yarn install
+      - name: "Build Module"
+        run: yarn run build:module --print-label
+      - name: "Export dist/ as Artifact"
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist
+      - name: "Export types/ as Artifact"
+        uses: actions/upload-artifact@v4
+        with:
+          name: types
+          path: types
+
+  deploy-npm:
+    name: "Publish to NPM 🚀"
+    environment: Deploy
+    runs-on: ubuntu-latest
+    permissions: write-all
+    needs: build
+    steps:
+      - name: "Checkout Repository"
+        uses: actions/checkout@v4
+      - name: "Load Artifacts"
+        uses: actions/download-artifact@v4
+      - name: "Setup Node v${{ vars.NODE_VERSION }}"
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ vars.NODE_VERSION }}
+          registry-url: "https://registry.npmjs.org"
+          token: ${{ secrets.NPM_TOKEN }}
+          always-auth: true
+      - name: "Publish Package"
+        run: yarn publish --access=public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  deploy-github:
+    name: "Publish to GitHub 🚀"
+    environment: Deploy
+    runs-on: ubuntu-latest
+    permissions: write-all
+    needs: build
+    steps:
+      - name: "Checkout Repository"
+        uses: actions/checkout@v4
+      - name: "Load Artifacts"
+        uses: actions/download-artifact@v4
+      - name: "Setup Node v${{ vars.NODE_VERSION }}"
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ vars.NODE_VERSION }}
+          registry-url: "https://npm.pkg.github.com"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          always-auth: true
+      - name: "Publish Package"
+        run: yarn publish --access=public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

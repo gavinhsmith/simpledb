@@ -86,44 +86,47 @@ export default class Database {
   ): Promise<Table<T>> {
     return new Promise((resolve, reject) => {
       this.exists(table)
-        .then(() => {
-          reject(new Error("Table already exists."));
-        })
-        .catch(() => {
-          // CREATE TABLE {table}({name} {type} {isPrimaryKey});
+        .then((exists) => {
+          if (!exists) {
+            // CREATE TABLE {table}({name} {type} {isPrimaryKey});
 
-          // Check that there is exactly 1 key property.
-          let seenKeyProperty = false;
-          for (let column of column_settings) {
-            if (column.isPrimaryKey != null && column.isPrimaryKey) {
-              if (!seenKeyProperty) {
-                seenKeyProperty = true;
-              } else {
-                reject(new Error("Too many key properties."));
-                return;
+            // Check that there is exactly 1 key property.
+            let seenKeyProperty = false;
+            for (let column of column_settings) {
+              if (column.isPrimaryKey != null && column.isPrimaryKey) {
+                if (!seenKeyProperty) {
+                  seenKeyProperty = true;
+                } else {
+                  reject(new Error("Too many key properties."));
+                  return;
+                }
               }
             }
-          }
-          if (!seenKeyProperty) {
-            reject(new Error("No key property."));
-            return;
-          }
 
-          // Create the query
-          let sqlQuery = `CREATE TABLE ${table}(`;
-          for (let i = 0; i < column_settings.length; i++) {
-            sqlQuery += `${column_settings[i].name} ${column_settings[i].type}${
-              column_settings[i].isPrimaryKey ? " PRIMARY KEY" : ""
-            }${i < column_settings.length - 1 ? ", " : ""}`;
-          }
-          sqlQuery += ");";
+            if (!seenKeyProperty) {
+              reject(new Error("No key property."));
+              return;
+            }
 
-          execOnDatabase(this.db, sqlQuery)
-            .then(() => {
-              resolve(this.table<T>(table));
-            })
-            .catch(reject);
-        });
+            // Create the query
+            let sqlQuery = `CREATE TABLE ${table}(`;
+            for (let i = 0; i < column_settings.length; i++) {
+              sqlQuery += `${column_settings[i].name} ${
+                column_settings[i].type
+              }${column_settings[i].isPrimaryKey ? " PRIMARY KEY" : ""}${
+                i < column_settings.length - 1 ? ", " : ""
+              }`;
+            }
+            sqlQuery += ");";
+
+            execOnDatabase(this.db, sqlQuery)
+              .then(() => {
+                resolve(this.table<T>(table));
+              })
+              .catch(reject);
+          } else reject(new Error("Table already exists."));
+        })
+        .catch(reject);
     });
   }
 
@@ -135,12 +138,13 @@ export default class Database {
   public drop(table: string): Promise<void> {
     return new Promise((resolve, reject) => {
       this.exists(table)
-        .then(() => {
-          // DROP TABLE {table}
-
-          execOnDatabase(this.db, `DROP TABLE ${table}`)
-            .then(resolve)
-            .catch(reject);
+        .then((exists) => {
+          if (exists) {
+            // DROP TABLE {table}
+            execOnDatabase(this.db, `DROP TABLE ${table}`)
+              .then(resolve)
+              .catch(reject);
+          } else reject(new Error("Table does not exist."));
         })
         .catch(reject);
     });
