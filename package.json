@@ -22,14 +22,13 @@
   },
   "scripts": {
     "clear": "rimraf ./dist",
-    "ts:build": "tsc",
-    "ts:watch": "tsc --watch",
+    "build:ts": "tsc",
     "build": "npm-run-all clear ts:build",
+    "dev:build:ts": "tsc --watch",
     "test": "node ./dist/tests/test.js",
-    "test:dist": "nodemon ./dist/tests/test.js",
-    "test:src": "nodemon ./src/tests/test.ts",
-    "dev:dist": "npm-run-all build --parallel ts:watch test:dist --print-label",
-    "dev": "npm-run-all test:src --print-label",
-    "prepublish": "npm-run-all build"
+    "dev:nodemon": "nodemon ./dist/tests/test.js",
+    "dev:nodemon:src": "nodemon ./src/tests/test.ts",
+    "dev:src": "npm-run-all test:src --print-label",
+    "dev": "npm-run-all build --parallel ts:watch test:dist --print-label"
   }
 }
