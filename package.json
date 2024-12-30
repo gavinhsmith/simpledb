@@ -3,7 +3,7 @@
   "version": "1.0.1",
   "description": "A node module for creating/managing easy-access SQLite databases.",
   "keywords": [
-    "datbase",
+    "database",
     "db",
     "sql",
     "sqlite",
