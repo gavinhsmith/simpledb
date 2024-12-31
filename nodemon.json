@@ -1,8 +1,0 @@
-{
-  "execMap": {
-    "ts": "tsx"
-  },
-  "watch": ["src/", "dist/"],
-  "ext": "ts,js,json",
-  "signal": "SIGTERM"
-}

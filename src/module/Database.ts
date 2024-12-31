@@ -17,7 +17,9 @@ export default class Database {
    */
   constructor(file: string, verbose: boolean = false) {
     this.path = file;
-    let DBConstructor = verbose ? sqlite3.verbose().Database : sqlite3.Database;
+    const DBConstructor = verbose
+      ? sqlite3.verbose().Database
+      : sqlite3.Database;
     switch (file) {
       case "memory":
         this.db = new DBConstructor(":memory:");
@@ -56,14 +58,14 @@ export default class Database {
     return new Promise((resolve, reject) => {
       // SELECT name FROM sqlite_master WHERE type='table';
 
-      queryOnDatabase(
+      queryOnDatabase<{ name: string }>(
         this.db,
         "SELECT name FROM sqlite_master WHERE type='table';"
       )
-        .then((rows: { name: string }[]) => {
-          let columns: string[] = [];
+        .then((rows) => {
+          const columns: string[] = [];
 
-          for (let row of rows) {
+          for (const row of rows) {
             columns.push(row.name);
           }
 
@@ -92,7 +94,7 @@ export default class Database {
 
             // Check that there is exactly 1 key property.
             let seenKeyProperty = false;
-            for (let column of column_settings) {
+            for (const column of column_settings) {
               if (column.isPrimaryKey != null && column.isPrimaryKey) {
                 if (!seenKeyProperty) {
                   seenKeyProperty = true;

@@ -1,6 +1,4 @@
-import Database from "../Database.js";
-import { DataType } from "../DatabaseTypes.js";
-import Table from "../Table.js";
+import Database from "@this";
 
 function rejectMessage(error: Error) {
   return `testCreateTable(): ${error.message}`;
@@ -12,7 +10,7 @@ function rejectMessage(error: Error) {
  */
 export default function testCreateTable(): Promise<void> {
   return new Promise((resolve, reject) => {
-    let db = new Database("memory", true);
+    const db = new Database("memory", true);
 
     db.create<{ id: number; column: string }>("test_table", [
       {
@@ -25,7 +23,7 @@ export default function testCreateTable(): Promise<void> {
         type: "TEXT",
       },
     ])
-      .then((_table) => {
+      .then(() => {
         db.table("test_table")
           .exists()
           .then((exists) => {

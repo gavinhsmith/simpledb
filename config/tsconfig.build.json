@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.base",
+  "compilerOptions": {
+    "outDir": "../dist",
+    "sourceMap": true,
+    "sourceRoot": "https://raw.githubusercontent.com/gavinhsmith/simpledb/refs/heads/release/src/module/"
+  },
+  "include": ["../src/module/**/*"]
+}

@@ -4,7 +4,7 @@ import Column, { ColumnSearcherFunction } from "./Column.js";
 import { DataType } from "./DatabaseTypes.js";
 
 /** The base type of entry data types. */
-export type EntryData = { [key: string]: any };
+export type EntryData = { [key: string]: unknown };
 
 /** A Table within a Database. */
 export default class Table<T extends EntryData> {
@@ -69,14 +69,14 @@ export default class Table<T extends EntryData> {
     return new Promise((resolve, reject) => {
       // SELECT name FROM pragma_table_info({table});
 
-      queryOnDatabase(
+      queryOnDatabase<{ name: string }>(
         this.db,
         `SELECT name FROM pragma_table_info('${this.name}');`
       )
-        .then((rows: { name: string }[]) => {
-          let columns: string[] = [];
+        .then((rows) => {
+          const columns: string[] = [];
 
-          for (let row of rows) {
+          for (const row of rows) {
             columns.push(row.name);
           }
 
@@ -152,8 +152,8 @@ export default class Table<T extends EntryData> {
     return new Promise((resolve, reject) => {
       // SELECT * FROM {table};
 
-      queryOnDatabase(this.db, `SELECT * FROM ${this.name}`)
-        .then((rows: T[]) => {
+      queryOnDatabase<T>(this.db, `SELECT * FROM ${this.name}`)
+        .then((rows) => {
           resolve(rows);
         })
         .catch(reject);
@@ -169,9 +169,9 @@ export default class Table<T extends EntryData> {
     return new Promise((resolve, reject) => {
       this.allEntries()
         .then((rows) => {
-          let out: T[] = [];
+          const out: T[] = [];
 
-          for (let row of rows) {
+          for (const row of rows) {
             if (searcher(row)) out.push(row);
           }
 
@@ -188,10 +188,10 @@ export default class Table<T extends EntryData> {
    */
   public add(entry: T): Promise<T> {
     return new Promise((resolve, reject) => {
-      let keys: string[] = Object.keys(entry);
-      let values: string[] = [];
+      const keys: string[] = Object.keys(entry);
+      const values: unknown[] = [];
 
-      for (let key of keys) {
+      for (const key of keys) {
         switch (typeof entry[key]) {
           case "string":
             values.push(`'${entry[key]}'`);
@@ -226,7 +226,7 @@ export default class Table<T extends EntryData> {
    * @param value The value in which to look for.
    * @returns A promise that resolves when successful, or rejects if an error occurs.
    */
-  public delete(column: string, value: any): Promise<void> {
+  public delete(column: string, value: unknown): Promise<void> {
     return new Promise((resolve, reject) => {
       // DELETE FROM {table} WHERE {column} = {value};
 

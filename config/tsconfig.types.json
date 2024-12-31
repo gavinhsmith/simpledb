@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.base",
+  "compilerOptions": {
+    "removeComments": false,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "declarationDir": "../dist",
+    "declarationMap": true,
+    "sourceMap": true,
+    "sourceRoot": "https://raw.githubusercontent.com/gavinhsmith/dimpledb/refs/heads/release/src/module/"
+  },
+  "include": ["../src/module/**/*"]
+}

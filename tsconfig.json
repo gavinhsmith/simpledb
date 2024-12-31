@@ -1,12 +1,9 @@
 {
+  "extends": ["./config/tsconfig.base"],
   "compilerOptions": {
-    "rootDir": "src/",
-    "outDir": "dist/",
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
-    "sourceRoot": "https://raw.githubusercontent.com/gavinhsmith/simpledb/refs/heads/main/src/",
-    "module": "NodeNext",
-    "esModuleInterop": true
-  }
+    "paths": {
+      "@this": ["./src/module/index.ts"]
+    }
+  },
+  "include": ["./src/tests"]
 }

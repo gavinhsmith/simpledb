@@ -54,13 +54,13 @@ export default class Column<T, K extends EntryData> {
           })
           .catch(reject);
       } else {
-        queryOnDatabase(
+        queryOnDatabase<{ CNTREC: number }>(
           this.db,
           "SELECT COUNT(*) AS CNTREC FROM pragma_table_info(?) WHERE name=(?);",
           this.table.getName(),
           this.name
         )
-          .then((rows: [{ CNTREC: number }]) => {
+          .then((rows) => {
             resolve(rows[0].CNTREC >= 1);
           })
           .catch(reject);
@@ -76,13 +76,13 @@ export default class Column<T, K extends EntryData> {
     return new Promise((resolve, reject) => {
       // SELECT {column} FROM {table};
 
-      queryOnDatabase(
+      queryOnDatabase<{ [key: string]: T }>(
         this.db,
         `SELECT ${this.name} FROM ${this.table.getName()}`
       )
-        .then((entries: { [key: string]: T }[]) => {
-          let out: T[] = [];
-          for (let entry of entries) {
+        .then((entries) => {
+          const out: T[] = [];
+          for (const entry of entries) {
             out.push(entry[this.name]);
           }
           resolve(out);
@@ -100,9 +100,9 @@ export default class Column<T, K extends EntryData> {
     return new Promise((resolve, reject) => {
       this.all()
         .then((entires) => {
-          let out: T[] = [];
+          const out: T[] = [];
 
-          for (let entry of entires) {
+          for (const entry of entires) {
             if (searcher(entry)) out.push(entry);
           }
 

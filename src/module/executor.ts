@@ -10,7 +10,7 @@ import sqlite3 from "sqlite3";
 export function execOnDatabase(
   db: sqlite3.Database,
   sql: string,
-  ...paramaters: any[]
+  ...paramaters: unknown[]
 ): Promise<void> {
   return new Promise((resolve, reject) => {
     db.run(sql, paramaters, (error) => {
@@ -34,7 +34,7 @@ export function execOnDatabase(
 export function queryOnDatabase<T>(
   db: sqlite3.Database,
   sql: string,
-  ...paramaters: any[]
+  ...paramaters: unknown[]
 ): Promise<T[]> {
   return new Promise((resolve, reject) => {
     db.all(sql, paramaters, (error, rows: T[]) => {

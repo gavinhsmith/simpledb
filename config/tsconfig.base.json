@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "target": "ES6",
+    "module": "NodeNext",
+    "removeComments": true
+  },
+  "exclude": ["../dist/**/*"]
+}
