@@ -128,12 +128,14 @@ out
 .yarn/install-state.gz
 .pnp.*
 
-# Typescript/Dev Files (npm Doesnt need these)
-.github/
+# Source Files
 /src/
-/dist/tests/
+/tests/
+/config/
+.github/
 tsconfig.json
+eslint.config.mjs
 nodemon.json
 
-# Sqlite3 Temp Files
+# DB Files
 *.db
