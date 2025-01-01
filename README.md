@@ -16,7 +16,7 @@ Install `simpledb` via your favorite package manager.
 npm install @gavinhsmith/simpledb
 ```
 
-### [Yarn](https://yarnpkg.com/package?q=%40gavinhsmith&name=%40gavinhsmith%2Fsimpledb)
+### [Yarn](https://yarnpkg.com/package?name=%40gavinhsmith%2Fsimpledb)
 
 ```shell
 yarn add @gavinhsmith/simpledb
