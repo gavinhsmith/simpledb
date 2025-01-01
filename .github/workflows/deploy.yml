@@ -1,12 +1,18 @@
-name: Deploy to NPM/GitHub 🚀
+name: Deploy to NPM/GitHub and Docs 🚀
 
 on:
   release:
     types: [created]
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 jobs:
   build:
     name: "Build Module 🚧"
+    if: github.repository == 'gavinhsmith/simpledb'
     environment: Deploy
     runs-on: ubuntu-latest
     steps:
@@ -22,15 +28,44 @@ jobs:
       - name: "Install Packages"
         run: yarn install
       - name: "Build Module"
-        run: yarn run build --print-label
-      - name: "Export as Artifact"
+        run: yarn run build:module --print-label
+      - name: "Build Docs"
+        run: yarn run build:docs --print-label
+      - name: "Export Module as Artifact"
         uses: actions/upload-artifact@v4
         with:
           name: dist
           path: dist
+      - name: "Export Docs as Artifact"
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs
+          path: docs
       - name: "[ACT] Uninstall Yarn"
         if: ${{env.ACT}}
         run: npm uninstall -g yarn
+
+  deploy-pages:
+    name: "Deploy Docs 📚"
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: "Checkout Repository"
+        uses: actions/checkout@v4
+      - name: "Load Artifacts"
+        uses: actions/download-artifact@v4
+      - name: "Setup Pages"
+        uses: actions/configure-pages@v5
+      - name: "Upload Docs"
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: "./docs"
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
 
   deploy-npm:
     name: "Publish to NPM 🚀"
