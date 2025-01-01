@@ -10,13 +10,13 @@ A node module for creating/managing easy-access SQLite databases.
 
 Install `simpledb` via your favorite package manager.
 
-### NPM
+### [NPM](https://www.npmjs.com/package/@gavinhsmith/simpledb)
 
 ```shell
 npm install @gavinhsmith/simpledb
 ```
 
-### Yarn
+### [Yarn](https://yarnpkg.com/package?q=%40gavinhsmith&name=%40gavinhsmith%2Fsimpledb)
 
 ```shell
 yarn add @gavinhsmith/simpledb
