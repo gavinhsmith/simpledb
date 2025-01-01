@@ -7,7 +7,7 @@
     "declarationDir": "../dist",
     "declarationMap": true,
     "sourceMap": true,
-    "sourceRoot": "https://raw.githubusercontent.com/gavinhsmith/simpledb/refs/heads/release/src/module/"
+    "sourceRoot": "https://raw.githubusercontent.com/gavinhsmith/simpledb/refs/heads/main/src/module/"
   },
   "include": ["../src/module/**/*"]
 }
