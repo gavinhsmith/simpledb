@@ -36,9 +36,15 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
+      - name: "[ACT] Install Yarn"
+        if: ${{env.ACT}}
+        run: npm install -g yarn
       - name: "Install Packages"
         run: yarn install
       - name: "Build Module/Tests"
         run: yarn run build --print-label
       - name: "Run Tests"
         run: yarn run test
+      - name: "[ACT] Uninstall Yarn"
+        if: ${{env.ACT}}
+        run: npm uninstall -g yarn

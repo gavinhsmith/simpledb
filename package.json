@@ -56,6 +56,8 @@
     "build:tests:imports": "replace-in-files --ignore-case --string=@this --replacement=../dist/index.js ./tests/*.js",
     "build:tests": "npm-run-all build:tests:clean lint:tests build:tests:ts build:tests:imports",
     "build": "npm-run-all build:module build:tests",
+    "test:workflow:ci": "act push -s GITHUB_TOKEN --matrix node:22 --matrix os:ubuntu-latest",
+    "test:workflow": "npm-run-all test:workflow:ci",
     "test": "node ./tests/test.js",
     "dev:build:module": "tsc --project ./config/tsconfig.build.json --watch",
     "dev:build:tests": "tsc --project ./config/tsconfig.test.json --watch",
