@@ -131,6 +131,7 @@ out
 # Source Files
 /src/
 /tests/
+/docs/
 /config/
 .github/
 tsconfig.json

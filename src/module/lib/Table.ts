@@ -7,7 +7,7 @@ import { DataType } from "./DatabaseTypes.js";
 export type EntryData = { [key: string]: unknown };
 
 /** A Table within a Database. */
-export default class Table<T extends EntryData> {
+export class Table<T extends EntryData> {
   /** The SQLite instance to utilize. */
   private db: sqlite3.Database;
   /** The name of the table. */
@@ -53,7 +53,7 @@ export default class Table<T extends EntryData> {
 
   /**
    * Gets a Column instance from the table.
-   * @param <T> The type of data that is in the column.
+   * @param <K> The type of data that is in the column.
    * @param column The name of the column.
    * @returns An instance that can do operations.
    */
@@ -88,7 +88,7 @@ export default class Table<T extends EntryData> {
 
   /**
    * Creates a new column on the table.
-   * @param <T> The type of data that is in the column.
+   * @param <K> The type of data that is in the column.
    * @param column The name of the column.
    * @param type The DataType of the column.
    * @returns A promise that resolves into a Column instance, or rejects if an error occurs.
@@ -263,3 +263,6 @@ export default class Table<T extends EntryData> {
     });
   }
 }
+
+// Export Default
+export default Table;

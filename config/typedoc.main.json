@@ -1,0 +1,32 @@
+{
+  // Add the DMT plugin.
+  "plugin": ["@typhonjs-typedoc/typedoc-theme-dmt", "typedoc-plugin-mdn-links"],
+
+  "entryPointStrategy": "expand",
+  "entryPoints": ["../src/module"],
+
+  "theme": "default-modern",
+
+  "dmtSettings": {
+    "animation": true
+  },
+
+  "outputs": [
+    {
+      "name": "html",
+      "path": "../docs/web",
+      "options": {
+        "navigation": {
+          "includeCategories": true,
+          "includeGroups": true,
+          "excludeReferences": false,
+          "includeFolders": true
+        }
+      }
+    },
+    {
+      "name": "json",
+      "path": "../docs/docs.json"
+    }
+  ]
+}

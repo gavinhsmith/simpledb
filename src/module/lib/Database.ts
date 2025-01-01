@@ -4,7 +4,7 @@ import { execOnDatabase, queryOnDatabase } from "./executor.js";
 import { TableColumnSettings } from "./DatabaseTypes.js";
 
 /** A Simple Database. */
-export default class Database {
+export class Database {
   /** The SQLite Database instance to connect with. */
   private db: sqlite3.Database;
   /** The file path to the database, or "memory" if in-memory. */
@@ -192,3 +192,6 @@ export default class Database {
     });
   }
 }
+
+// Export Default
+export default Database;

@@ -1,11 +1,17 @@
 import globals from "globals";
-import pluginJs from "@eslint/js";
-import tseslint from "typescript-eslint";
+import js from "@eslint/js";
+import typescript from "typescript-eslint";
 
 /** @type {import('eslint').Linter.Config[]} */
 export default [
-  { files: ["src/**/*.{ts}"] },
-  { languageOptions: { globals: globals.node } },
-  pluginJs.configs.recommended,
-  ...tseslint.configs.recommended,
+  {
+    files: ["src/**/*.{ts}"],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+      },
+    },
+  },
+  js.configs.recommended,
+  ...typescript.configs.recommended,
 ];

@@ -9,7 +9,7 @@ export type ColumnSearcherFunction<T> = (value: T) => boolean;
  * A Column within a Table.
  * @param <T> The type of data in this column.
  * */
-export default class Column<T, K extends EntryData> {
+export class Column<T, K extends EntryData> {
   /** The SQLite instance to utilize. */
   private db: sqlite3.Database;
   /** The reference to the parent table. */
@@ -33,7 +33,7 @@ export default class Column<T, K extends EntryData> {
 
   /**
    * Checks if the column/an entry exists.
-   * @param content The entry to check, will check if the column exists if left blank.
+   * @param entry The entry to check, will check if the column exists if left blank.
    * @returns A promise that resolves to a boolean, or rejects if an error occurs.
    */
   public exists(entry?: T): Promise<boolean> {
@@ -130,3 +130,6 @@ export default class Column<T, K extends EntryData> {
 
   public fakeFunc() {}
 }
+
+// Export Defaults
+export default Column;

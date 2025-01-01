@@ -1,0 +1,13 @@
+{
+  "plugin": ["typedoc-plugin-mdn-links", "typedoc-plugin-markdown"],
+
+  "entryPointStrategy": "expand",
+  "entryPoints": ["../src/module"],
+
+  "outputs": [
+    {
+      "name": "markdown",
+      "path": "../docs/md"
+    }
+  ]
+}

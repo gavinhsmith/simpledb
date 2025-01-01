@@ -131,6 +131,7 @@ out
 # Builds
 /dist/
 /tests/
+/docs/
 
 # DB Files
 *.db
