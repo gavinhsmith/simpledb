@@ -2,13 +2,13 @@
 
 A node module for creating/managing easy-access SQLite databases.
 
-![NPM Version](https://img.shields.io/npm/v/%40gavinhsmith%2Fsimpledb?style=flat-square&label=NPM%20Version&labelColor=cc3838&color=f0f0f0)
-![NPM Downloads](https://img.shields.io/npm/d18m/%40gavinhsmith%2Fsimpledb?style=flat-square&label=NPM%20Downloads&labelColor=cc3838&color=f0f0f0)
-![License](https://img.shields.io/github/license/gavinhsmith/simpledb?style=flat-square&label=Licence&color=f0f0f0)
+[![NPM Version](https://img.shields.io/npm/v/%40gavinhsmith%2Fsimpledb?style=flat-square&label=NPM%20Version&labelColor=cc3838&color=f0f0f0)](https://www.npmjs.com/package/@gavinhsmith/simpledb)
+[![NPM Downloads](https://img.shields.io/npm/d18m/%40gavinhsmith%2Fsimpledb?style=flat-square&label=NPM%20Downloads&labelColor=cc3838&color=f0f0f0)](https://www.npmjs.com/package/@gavinhsmith/simpledb)
+[![License](https://img.shields.io/github/license/gavinhsmith/simpledb?style=flat-square&label=Licence&color=f0f0f0)](https://github.com/gavinhsmith/simpledb?tab=MIT-1-ov-file)
 
 ## Install
 
-Install shutdown via your favorite package manager.
+Install `simpledb` via your favorite package manager.
 
 ### NPM
 
