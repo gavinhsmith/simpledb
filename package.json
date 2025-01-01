@@ -2,6 +2,8 @@
   "name": "@gavinhsmith/simpledb",
   "version": "1.0.2",
   "description": "A node module for creating/managing easy-access SQLite databases.",
+  "author": "gavinhsmith <me@gavinhsmith.com> (https://gavinhsmith.com)",
+  "license": "MIT",
   "keywords": [
     "database",
     "db",
@@ -18,7 +20,6 @@
   "publishConfig": {
     "access": "public"
   },
-  "author": "gavinhsmith <me@gavinhsmith.com> (https://gavinhsmith.com)",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/gavinhsmith/simpledb.git"
@@ -27,7 +28,6 @@
     "url": "https://github.com/gavinhsmith/simpledb/issues"
   },
   "homepage": "https://github.com/gavinhsmith/simpledb#readme",
-  "license": "MIT",
   "dependencies": {
     "sqlite3": "^5.1.7"
   },
@@ -38,6 +38,7 @@
     "globals": "^15.14.0",
     "nodemon": "^3.1.9",
     "npm-run-all": "^4.1.5",
+    "pre-commit": "^1.2.2",
     "replace-in-files-cli": "^3.0.0",
     "rimraf": "^6.0.1",
     "typescript": "^5.7.2",
@@ -62,6 +63,12 @@
     "dev:build:module": "tsc --project ./config/tsconfig.build.json --watch",
     "dev:build:tests": "tsc --project ./config/tsconfig.test.json --watch",
     "dev:nodemon": "nodemon --config ./config/nodemon.json ./tests/test.js",
-    "dev": "npm-run-all build:module build:tests --parallel dev:build:module dev:build:tests dev:nodemon --print-label"
-  }
+    "dev": "npm-run-all build:module build:tests --parallel dev:build:module dev:build:tests dev:nodemon --print-label",
+    "git:pre-commit": "echo Running Pre-Commit Checks... [If you see this in VSCode they failed lol :P]"
+  },
+  "pre-commit": [
+    "git:pre-commit",
+    "build",
+    "test"
+  ]
 }

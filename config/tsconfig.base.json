@@ -1,8 +1,9 @@
 {
   "compilerOptions": {
     "strict": true,
-    "target": "ES6",
-    "module": "NodeNext",
+    "lib": ["ES2023"],
+    "module": "node16",
+    "target": "ES2023",
     "removeComments": true
   },
   "exclude": ["../dist/**/*"]
