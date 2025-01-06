@@ -4,7 +4,9 @@ import Column, { ColumnSearcherFunction } from "./Column.js";
 import { DataType } from "./DatabaseTypes.js";
 
 /** The base type of entry data types. */
-export type EntryData = { [key: string]: unknown };
+export interface EntryData {
+  [key: string]: unknown;
+}
 
 /** A Table within a Database. */
 export class Table<T extends EntryData> {
