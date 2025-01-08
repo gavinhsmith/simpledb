@@ -1,4 +1,4 @@
-import sqlite3 from "sqlite3";
+import { Database } from "sqlite3";
 import { execOnDatabase, queryOnDatabase } from "./executor.js";
 import Column, { ColumnSearcherFunction } from "./Column.js";
 import { DataType } from "./DatabaseTypes.js";
@@ -11,7 +11,7 @@ export interface EntryData {
 /** A Table within a Database. */
 export class Table<T extends EntryData> {
   /** The SQLite instance to utilize. */
-  private db: sqlite3.Database;
+  private db: Database;
   /** The name of the table. */
   private name: string;
 
@@ -20,7 +20,7 @@ export class Table<T extends EntryData> {
    * @param sql The SQLite3 reference from the Database.
    * @param name The name of the table.
    */
-  constructor(sql: sqlite3.Database, name: string) {
+  constructor(sql: Database, name: string) {
     this.db = sql;
     this.name = name;
   }

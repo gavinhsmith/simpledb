@@ -1,4 +1,4 @@
-import sqlite3 from "sqlite3";
+import { Database as DB, verbose } from "sqlite3";
 import Table, { EntryData } from "./Table.js";
 import { execOnDatabase, queryOnDatabase } from "./executor.js";
 import { TableColumnSettings } from "./DatabaseTypes.js";
@@ -6,20 +6,18 @@ import { TableColumnSettings } from "./DatabaseTypes.js";
 /** A Simple Database. */
 export class Database {
   /** The SQLite Database instance to connect with. */
-  private db: sqlite3.Database;
+  private db: DB;
   /** The file path to the database, or "memory" if in-memory. */
   private path: string;
 
   /**
    * Constructs a Database.
    * @param file The path to the file of the database, or "memory" for an in-memory database.
-   * @param verbose If this database should use the verbose version of `sqlite3`, defaults to `false`.
+   * @param useVerbose If this database should use the verbose version of `sqlite3`, defaults to `false`.
    */
-  constructor(file: string, verbose: boolean = false) {
+  constructor(file: string, useVerbose: boolean = false) {
     this.path = file;
-    const DBConstructor = verbose
-      ? sqlite3.verbose().Database
-      : sqlite3.Database;
+    const DBConstructor = useVerbose ? verbose().Database : DB;
     switch (file) {
       case "memory":
         this.db = new DBConstructor(":memory:");
@@ -158,7 +156,7 @@ export class Database {
    * Gets the SQLite3 Database instance.
    * @returns The instace that the Database uses.
    */
-  public getSQLiteInstance(): sqlite3.Database {
+  public getSQLiteInstance(): DB {
     return this.db;
   }
 

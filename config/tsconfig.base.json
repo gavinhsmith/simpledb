@@ -2,7 +2,7 @@
   "compilerOptions": {
     "strict": true,
     "lib": ["ES2023"],
-    "module": "node16",
+    "module": "CommonJS",
     "target": "ES2023",
     "removeComments": true
   },

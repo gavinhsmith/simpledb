@@ -1,4 +1,4 @@
-import sqlite3 from "sqlite3";
+import { Database } from "sqlite3";
 import { queryOnDatabase } from "./executor.js";
 import Table, { EntryData } from "./Table.js";
 
@@ -11,7 +11,7 @@ export type ColumnSearcherFunction<T> = (value: T) => boolean;
  * */
 export class Column<T, K extends EntryData> {
   /** The SQLite instance to utilize. */
-  private db: sqlite3.Database;
+  private db: Database;
   /** The reference to the parent table. */
   private table: Table<K>;
   /** The name of the column. */
@@ -23,7 +23,7 @@ export class Column<T, K extends EntryData> {
    * @param name The name of the column.
    * @param table The column's parent table.
    */
-  constructor(sql: sqlite3.Database, name: string, table: Table<K>) {
+  constructor(sql: Database, name: string, table: Table<K>) {
     this.db = sql;
     this.name = name;
     this.table = table;
