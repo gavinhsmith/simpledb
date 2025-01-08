@@ -3,7 +3,8 @@
   "compilerOptions": {
     "outDir": "../tests",
     "paths": {
-      "@this": ["../dist/index.d.ts"]
+      "@module/*": ["../dist/*"],
+      "@module": ["../dist/index.d.ts"]
     }
   },
   "include": ["../src/tests/**/*"]

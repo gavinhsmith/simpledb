@@ -1,4 +1,4 @@
-import Database from "@this";
+import Database from "@module";
 
 function rejectMessage(error: Error) {
   return `testCreateTable(): ${error.message}`;

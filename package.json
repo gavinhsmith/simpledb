@@ -58,7 +58,7 @@
     "build:module": "npm-run-all lint:module build:module:clean build:module:ts build:module:types",
     "build:tests:clean": "rimraf ./tests",
     "build:tests:ts": "tsc --project ./config/tsconfig.test.json",
-    "build:tests:imports": "replace-in-files --ignore-case --string=@this --replacement=../dist/index.js ./tests/*.js",
+    "build:tests:imports": "replace-in-files --ignore-case --string=@module/ --replacement=../dist/ ./tests/*.js && replace-in-files --ignore-case --string=@module --replacement=../dist/index.js ./tests/*.js",
     "build:tests": "npm-run-all build:tests:clean lint:tests build:tests:ts build:tests:imports",
     "build:docs:clean": "rimraf ./docs",
     "build:docs:typedoc": "typedoc --options ./config/typedoc.main.json && typedoc --options ./config/typedoc.md.json",

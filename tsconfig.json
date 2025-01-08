@@ -2,7 +2,8 @@
   "extends": ["./config/tsconfig.base"],
   "compilerOptions": {
     "paths": {
-      "@this": ["./src/module/index.ts"]
+      "@module/*": ["./src/module/*"],
+      "@module": ["./src/module/index.ts"]
     }
   },
   "include": ["./src/tests"]
