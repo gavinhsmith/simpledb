@@ -11,6 +11,5 @@ import Database from "./lib/Database";
 export * from "./lib/Database";
 export * from "./lib/Table";
 export * from "./lib/Column";
-export * from "./lib/types.js";
 
 export default Database;
