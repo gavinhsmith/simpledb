@@ -22,3 +22,5 @@ export type TableColumns<T extends TableEntry> = {
 export type StringifiedObject<T extends object> = {
   [Prop in keyof T]: string;
 };
+
+export type FilterFunction<T> = (value: T) => boolean;

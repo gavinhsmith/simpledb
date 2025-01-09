@@ -6,10 +6,10 @@
  * @author gavinhsmith
  */
 
-import Database from "./lib/Database";
+import Database from "./lib/database";
 
-export * from "./lib/Database";
-export * from "./lib/Table";
-export * from "./lib/Column";
+export * from "./lib/database";
+export * from "./lib/table";
+export * from "./lib/column";
 
 export default Database;

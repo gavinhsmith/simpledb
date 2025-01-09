@@ -1,7 +1,7 @@
 import Database from "@module";
 
 function rejectMessage(error: Error) {
-  return `testCreateTable(): ${error.message}`;
+  return `testCreateTable(): ${error.message}\n${error}`;
 }
 
 type TestTableData = { id: number; entry: string };
@@ -27,7 +27,7 @@ export default function testCreateTable(): Promise<void> {
               resolve();
             } else {
               reject(
-                rejectMessage(new Error('Table "test_table" does not exist.'))
+                rejectMessage(new Error('Table "test_table" was not created.'))
               );
             }
           })

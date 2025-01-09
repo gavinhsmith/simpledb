@@ -1,10 +1,10 @@
 import Database from "@module";
 
 function rejectMessage(error: Error) {
-  return `testCreateEntry(): ${error.message}`;
+  return `testCreateEntry(): ${error.message}\n${error}`;
 }
 
-type TestTableData = { id: number; entry: string };
+type TestTableData = { id: number; entry: string; date: () => number };
 
 /**
  * Tests the Table.add() method.
@@ -16,14 +16,26 @@ export default function testCreateEntry(): Promise<void> {
 
     db.create<TestTableData>(
       "test_table",
-      { id: "INTENGER", entry: "TEXT" },
+      { id: "INTENGER", entry: "TEXT", date: "INTENGER" },
       "id"
     )
       .then(() => {
         const expected: TestTableData[] = [];
-        expected[0] = { id: 0, entry: "Entry #1" };
-        expected[1] = { id: 1, entry: "Entry #2" };
-        expected[2] = { id: 2, entry: "Entry #3" };
+        expected[0] = {
+          id: 0,
+          entry: "Entry #1",
+          date: () => new Date().getTime(),
+        };
+        expected[1] = {
+          id: 1,
+          entry: "Entry #2",
+          date: () => new Date().getTime(),
+        };
+        expected[2] = {
+          id: 2,
+          entry: "Entry #3",
+          date: () => new Date().getTime(),
+        };
 
         const promises: Promise<TestTableData>[] = [];
         for (const expect of expected) {

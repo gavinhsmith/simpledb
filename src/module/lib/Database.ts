@@ -1,44 +1,30 @@
-import { Database as Sqlite3Database, verbose } from "sqlite3";
-import { Config, parseConfig } from "./Config";
-import Table from "./Table";
-import { execOnDatabase, queryOnDatabase } from "./executor";
-import { TableEntry, TableColumns } from "./types";
+import SqliteWrapper from "./wrapper";
+import { Config, parseConfig } from "./config";
+import Table from "./table";
+import { TableEntry, TableColumns, FilterFunction } from "./types";
 
 /** A Simple Database. */
 export class Database {
   /** The SQLite Database instance to connect with. */
-  private db: Sqlite3Database;
+  private readonly db: SqliteWrapper;
   /** The file path to the database, or "memory" if in-memory. */
-  private path: string;
+  private readonly path: string;
   /** The config that was given to the module. */
-  private config: Config;
+  private readonly config: Config;
 
   /**
    * Constructs a Database.
    * @param file The path to the file of the database, or "memory" for an in-memory database.
    * @param config Config paramaters for the database.
    */
-  constructor(file: "memory" | string, config: Partial<Config> = {}) {
+  constructor(file: "memory" | "disk" | string, config: Partial<Config> = {}) {
     // Config Setup
     this.config = parseConfig(config);
 
     // Set Path
     this.path = file;
 
-    // Pick which sqlite to use.
-    const DBConstructor = this.config.verbose
-      ? verbose().Database
-      : Sqlite3Database;
-
-    // Initiate DB
-    switch (file) {
-      case "memory":
-        this.db = new DBConstructor(":memory:");
-        break;
-      default:
-        this.db = new DBConstructor(file);
-        break;
-    }
+    this.db = new SqliteWrapper(file, this.config.verbose);
   }
 
   // Database Operations
@@ -67,15 +53,15 @@ export class Database {
    * @returns All tables within the database.
    */
   public tables(
-    filter: (name: string) => boolean = () => true
+    filter: FilterFunction<string> = () => true
   ): Promise<string[]> {
     return new Promise((resolve, reject) => {
       // SELECT name FROM sqlite_master WHERE type='table';
 
-      queryOnDatabase<{ name: string }>(
-        this.db,
-        "SELECT name FROM sqlite_master WHERE type='table';"
-      )
+      this.db
+        .query<{ name: string }>(
+          "SELECT name FROM sqlite_master WHERE type='table';"
+        )
         .then((rows) => {
           const columns: string[] = [];
 
@@ -123,7 +109,8 @@ export class Database {
             }
             sqlQuery += ");";
 
-            execOnDatabase(this.db, sqlQuery)
+            this.db
+              .exec(sqlQuery)
               .then(() => {
                 resolve(this.table<T>(name));
               })
@@ -145,9 +132,7 @@ export class Database {
         .then((exists) => {
           if (exists) {
             // DROP TABLE {table}
-            execOnDatabase(this.db, `DROP TABLE ${table}`)
-              .then(resolve)
-              .catch(reject);
+            this.db.exec(`DROP TABLE ${table}`).then(resolve).catch(reject);
           } else reject(new Error("Table does not exist."));
         })
         .catch(reject);
@@ -157,11 +142,11 @@ export class Database {
   // Database Tools
 
   /**
-   * Gets the SQLite3 Database instance. Mostly used for testing.
+   * Gets the SQLite3 instance. Mostly used for testing.
    * @returns The instace that the Database uses.
    */
-  public getSQLiteInstance(): Sqlite3Database {
-    return this.db;
+  public getSQLiteInstance() {
+    return this.db.getInstance();
   }
 
   /**
@@ -169,13 +154,10 @@ export class Database {
    * @returns A promise that resolves when the connection is closed.
    */
   public close(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      this.db.close((error) => {
-        if (error) {
-          reject(error);
-        } else {
-          resolve();
-        }
+    return new Promise((resolve) => {
+      this.db.close().then((error) => {
+        if (error) console.warn(error);
+        resolve();
       });
     });
   }

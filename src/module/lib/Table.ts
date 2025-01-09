@@ -1,22 +1,26 @@
-import { Database } from "sqlite3";
-import { execOnDatabase, queryOnDatabase } from "./executor";
-import Column, { ColumnSearcherFunction } from "./Column";
-import { DataType, TableEntry, StringifiedObject } from "./types";
+import Column from "./column";
+import {
+  DataType,
+  TableEntry,
+  StringifiedObject,
+  FilterFunction,
+} from "./types";
+import SqliteWrapper from "./wrapper";
 
 /** A Table within a Database. */
 export class Table<T extends TableEntry> {
   /** The SQLite instance to utilize. */
-  private db: Database;
+  private db: SqliteWrapper;
   /** The name of the table. */
   private name: string;
 
   /**
    * Constructs a Table.
-   * @param sql The SQLite3 reference from the Database.
+   * @param wrapper The SQLite3 reference from the Database.
    * @param name The name of the table.
    */
-  constructor(sql: Database, name: string) {
-    this.db = sql;
+  constructor(wrapper: SqliteWrapper, name: string) {
+    this.db = wrapper;
     this.name = name;
   }
 
@@ -35,11 +39,11 @@ export class Table<T extends TableEntry> {
       return this.column(column).exists();
     } else {
       return new Promise((resolve, reject) => {
-        queryOnDatabase(
-          this.db,
-          "SELECT name FROM sqlite_master WHERE type='table' AND name=(?);",
-          this.name
-        )
+        this.db
+          .query(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name=$name;",
+            { $name: this.name }
+          )
           .then((rows) => {
             resolve(rows.length >= 1);
           })
@@ -62,14 +66,14 @@ export class Table<T extends TableEntry> {
    * Gets the names of all the columns of the table.
    * @returns All columns within the table.
    */
-  public all(): Promise<string[]> {
+  public columns(): Promise<string[]> {
     return new Promise((resolve, reject) => {
       // SELECT name FROM pragma_table_info({table});
 
-      queryOnDatabase<{ name: string }>(
-        this.db,
-        `SELECT name FROM pragma_table_info('${this.name}');`
-      )
+      this.db
+        .query<{ name: string }>(
+          `SELECT name FROM pragma_table_info('${this.name}');`
+        )
         .then((rows) => {
           const columns: string[] = [];
 
@@ -97,10 +101,8 @@ export class Table<T extends TableEntry> {
           if (!exists) {
             // ALTER TABLE {table} ADD COLUMN {name} {type};
 
-            execOnDatabase(
-              this.db,
-              `ALTER TABLE ${this.name} ADD COLUMN ${column} ${type};`
-            )
+            this.db
+              .exec(`ALTER TABLE ${this.name} ADD COLUMN ${column} ${type};`)
               .then(() => {
                 resolve(this.column<K>(column));
               })
@@ -123,10 +125,8 @@ export class Table<T extends TableEntry> {
           if (exists) {
             // ALTER TABLE {table} DROP COLUMN {name};
 
-            execOnDatabase(
-              this.db,
-              `ALTER TABLE ${this.name} DROP COLUMN ${column};`
-            )
+            this.db
+              .exec(`ALTER TABLE ${this.name} DROP COLUMN ${column};`)
               .then(() => {
                 resolve();
               })
@@ -145,11 +145,12 @@ export class Table<T extends TableEntry> {
    * Gets all entries in the table.
    * @returns A promise that resolves into all table entries, or rejects if an error occurs.
    */
-  public allEntries(): Promise<T[]> {
+  public all(): Promise<T[]> {
     return new Promise((resolve, reject) => {
       // SELECT * FROM {table};
 
-      queryOnDatabase<T>(this.db, `SELECT * FROM ${this.name}`)
+      this.db
+        .query<T>(`SELECT * FROM ${this.name}`)
         .then((rows) => {
           resolve(rows);
         })
@@ -158,18 +159,18 @@ export class Table<T extends TableEntry> {
   }
 
   /**
-   * Gets entries from the table that are "approved" by the searcher.
-   * @param searcher A method that verifies that an entry should be included in the result.
+   * Gets entries from the table.
+   * @param filter A method returns true for any row in the table that should be included. Defaults to all.
    * @returns A promise that resolves into the requested table entries, or rejects if an error occurs.
    */
-  public get(searcher: ColumnSearcherFunction<T>): Promise<T[]> {
+  public get(filter: FilterFunction<T> = () => true): Promise<T[]> {
     return new Promise((resolve, reject) => {
-      this.allEntries()
+      this.all()
         .then((rows) => {
           const out: T[] = [];
 
           for (const row of rows) {
-            if (searcher(row)) out.push(row);
+            if (filter(row)) out.push(row);
           }
 
           resolve(out);
@@ -197,7 +198,7 @@ export class Table<T extends TableEntry> {
       case "object":
         return cleanStr(JSON.stringify(value));
       case "function":
-        return cleanStr(String(value()));
+        return this.stringifyValue(value());
       case "symbol":
         return cleanStr(
           value.description != null ? value.description : value.toString()
@@ -240,30 +241,21 @@ export class Table<T extends TableEntry> {
 
     return new Promise((resolve, reject) => {
       const keys: string[] = Object.keys(entry);
+      const cleaned = this.stringifyObject(entry);
       const values: string[] = [];
 
       for (const key of keys) {
-        switch (typeof entry[key]) {
-          case "string":
-            values.push(`"${entry[key].replace(/"/g, '\\"')}"`);
-            break;
-          case "boolean":
-            values.push(entry[key] ? "'T'" : "'F'");
-            break;
-          default:
-            values.push(String(entry[key]));
-            break;
-        }
+        values.push(cleaned[key]);
       }
 
       // INSERT INTO {table} ({...columns}) VALUES ({...values});
 
-      execOnDatabase(
-        this.db,
-        `INSERT INTO ${this.name} (${keys.join(",")}) VALUES (${values.join(
-          ","
-        )});`
-      )
+      this.db
+        .exec(
+          `INSERT INTO ${this.name} (${keys.join(",")}) VALUES (${values.join(
+            ","
+          )});`
+        )
         .then(() => {
           resolve(entry);
         })
@@ -281,10 +273,8 @@ export class Table<T extends TableEntry> {
     return new Promise((resolve, reject) => {
       // DELETE FROM {table} WHERE {column} = {value};
 
-      execOnDatabase(
-        this.db,
-        `DELETE FROM ${this.name} WHERE ${column} = ${value};`
-      )
+      this.db
+        .exec(`DELETE FROM ${this.name} WHERE ${column} = ${value};`)
         .then(resolve)
         .catch(reject);
     });
@@ -306,7 +296,7 @@ export class Table<T extends TableEntry> {
    */
   public toString(): Promise<string> {
     return new Promise((resolve, reject) => {
-      this.all()
+      this.columns()
         .then((columns) => {
           resolve(`Table{name=${this.name},columns=[${columns.join(",")}]}`);
         })
