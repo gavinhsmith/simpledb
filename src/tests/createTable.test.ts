@@ -26,7 +26,9 @@ export default function testCreateTable(): Promise<void> {
             if (exists) {
               resolve();
             } else {
-              reject(new Error('Table "test_table" does not exist.'));
+              reject(
+                rejectMessage(new Error('Table "test_table" does not exist.'))
+              );
             }
           })
           .catch((error: Error) => {
