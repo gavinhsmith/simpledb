@@ -1,19 +1,20 @@
 import { Database } from "sqlite3";
 import { queryOnDatabase } from "./executor";
-import Table, { EntryData } from "./Table";
+import Table from "./Table";
+import { TableEntry } from "./types";
 
 /** Is used to restrict the results of the columns data to any item that would return `true` in this method. */
 export type ColumnSearcherFunction<T> = (value: T) => boolean;
 
 /**
  * A Column within a Table.
- * @param <T> The type of data in this column.
+ * @param <ColumnType> The type of data in this column.
  * */
-export class Column<T, K extends EntryData> {
+export class Column<ColumnType, TableType extends TableEntry> {
   /** The SQLite instance to utilize. */
   private db: Database;
   /** The reference to the parent table. */
-  private table: Table<K>;
+  private table: Table<TableType>;
   /** The name of the column. */
   private name: string;
 
@@ -23,7 +24,7 @@ export class Column<T, K extends EntryData> {
    * @param name The name of the column.
    * @param table The column's parent table.
    */
-  constructor(sql: Database, name: string, table: Table<K>) {
+  constructor(sql: Database, name: string, table: Table<TableType>) {
     this.db = sql;
     this.name = name;
     this.table = table;
@@ -36,7 +37,7 @@ export class Column<T, K extends EntryData> {
    * @param entry The entry to check, will check if the column exists if left blank.
    * @returns A promise that resolves to a boolean, or rejects if an error occurs.
    */
-  public exists(entry?: T): Promise<boolean> {
+  public exists(entry?: ColumnType): Promise<boolean> {
     return new Promise((resolve, reject) => {
       // No Entry: SELECT COUNT(*) AS CNTREC FROM pragma_table_info({table}) WHERE name={column};
       // Entry: SELECT * FROM {table} WHERE {column}={entry};
@@ -72,16 +73,16 @@ export class Column<T, K extends EntryData> {
    * Gets all of the entries within the column.
    * @returns All entries.
    */
-  public all(): Promise<T[]> {
+  public all(): Promise<ColumnType[]> {
     return new Promise((resolve, reject) => {
       // SELECT {column} FROM {table};
 
-      queryOnDatabase<{ [key: string]: T }>(
+      queryOnDatabase<{ [key: string]: ColumnType }>(
         this.db,
         `SELECT ${this.name} FROM ${this.table.getName()}`
       )
         .then((entries) => {
-          const out: T[] = [];
+          const out: ColumnType[] = [];
           for (const entry of entries) {
             out.push(entry[this.name]);
           }
@@ -96,11 +97,13 @@ export class Column<T, K extends EntryData> {
    * @param searcher A method which returns `true` if the value should be included in the response.
    * @returns A promise that resolves into the entries requested.
    */
-  public get(searcher: ColumnSearcherFunction<T>): Promise<T[]> {
+  public get(
+    searcher: ColumnSearcherFunction<ColumnType>
+  ): Promise<ColumnType[]> {
     return new Promise((resolve, reject) => {
       this.all()
         .then((entires) => {
-          const out: T[] = [];
+          const out: ColumnType[] = [];
 
           for (const entry of entires) {
             if (searcher(entry)) out.push(entry);

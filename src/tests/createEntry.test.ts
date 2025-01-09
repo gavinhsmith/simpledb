@@ -25,11 +25,12 @@ export default function testCreateEntry(): Promise<void> {
         expected[1] = { id: 1, entry: "Entry #2" };
         expected[2] = { id: 2, entry: "Entry #3" };
 
-        Promise.all([
-          db.table<TestTableData>("test_table").add(expected[0]),
-          db.table<TestTableData>("test_table").add(expected[1]),
-          db.table<TestTableData>("test_table").add(expected[2]),
-        ])
+        const promises: Promise<TestTableData>[] = [];
+        for (const expect of expected) {
+          promises.push(db.table<TestTableData>("test_table").add(expect));
+        }
+
+        Promise.all(promises)
           .then((actual) => {
             for (let i = 0; i < actual.length; i++) {
               if (actual[i] !== expected[i]) {

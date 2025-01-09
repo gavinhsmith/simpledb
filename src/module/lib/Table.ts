@@ -1,15 +1,10 @@
 import { Database } from "sqlite3";
 import { execOnDatabase, queryOnDatabase } from "./executor";
 import Column, { ColumnSearcherFunction } from "./Column";
-import { DataType } from "./DatabaseTypes";
-
-/** The base type of entry data types. */
-export interface EntryData {
-  [key: string]: unknown;
-}
+import { DataType, TableEntry, StringifiedObject } from "./types";
 
 /** A Table within a Database. */
-export class Table<T extends EntryData> {
+export class Table<T extends TableEntry> {
   /** The SQLite instance to utilize. */
   private db: Database;
   /** The name of the table. */
@@ -184,25 +179,79 @@ export class Table<T extends EntryData> {
   }
 
   /**
+   * Internal helper to properly stringify a value for SQL.
+   * @private
+   *
+   * @param value The value to convert.
+   * @returns A string representation.
+   */
+  private stringifyValue(value: unknown): string {
+    const cleanStr = (value: string): string =>
+      `'${value.replace(/'/g, "\\'")}'`;
+
+    switch (typeof value) {
+      case "string":
+        return cleanStr(value);
+      case "boolean":
+        return cleanStr(value ? "T" : "F");
+      case "object":
+        return cleanStr(JSON.stringify(value));
+      case "function":
+        return cleanStr(String(value()));
+      case "symbol":
+        return cleanStr(
+          value.description != null ? value.description : value.toString()
+        );
+      case "undefined":
+        return "null";
+      default:
+        return String(value);
+    }
+  }
+
+  /**
+   * Internal helper to stringify an object's data for SQL.
+   * @private
+   *
+   * @param entry The object to stringify.
+   * @returns An object containing strings.
+   */
+  private stringifyObject<K extends { [key: string]: unknown }>(
+    object: K
+  ): StringifiedObject<K> {
+    const out: { [key: string]: string } = {};
+
+    const keys = Object.keys(object);
+
+    for (const key of keys) {
+      out[key] = this.stringifyValue(object[key]);
+    }
+
+    return <StringifiedObject<K>>(<unknown>out);
+  }
+
+  /**
    * Adds a new entry to the table.
    * @param entry The entry data to add.
    * @returns A promise that resolves into the added data, or rejects if an error occurs.
    */
   public add(entry: T): Promise<T> {
+    console.info(this.stringifyObject(entry));
+
     return new Promise((resolve, reject) => {
       const keys: string[] = Object.keys(entry);
-      const values: unknown[] = [];
+      const values: string[] = [];
 
       for (const key of keys) {
         switch (typeof entry[key]) {
           case "string":
-            values.push(`'${entry[key]}'`);
+            values.push(`"${entry[key].replace(/"/g, '\\"')}"`);
             break;
           case "boolean":
             values.push(entry[key] ? "'T'" : "'F'");
             break;
           default:
-            values.push(entry[key]);
+            values.push(String(entry[key]));
             break;
         }
       }

@@ -1,8 +1,8 @@
 import { Database as Sqlite3Database, verbose } from "sqlite3";
 import { Config, parseConfig } from "./Config";
-import Table, { EntryData } from "./Table";
+import Table from "./Table";
 import { execOnDatabase, queryOnDatabase } from "./executor";
-import { TableColumnSettings } from "./DatabaseTypes";
+import { TableEntry, TableColumns } from "./types";
 
 /** A Simple Database. */
 export class Database {
@@ -96,9 +96,9 @@ export class Database {
    * @param columns Definitions for the table columns.
    * @returns A promise that resolves into a Table instance, and rejects if an error occurs.
    */
-  public create<T extends EntryData>(
+  public create<T extends TableEntry>(
     name: string,
-    columns: TableColumnSettings,
+    columns: TableColumns<T>,
     primary_key: keyof T
   ): Promise<Table<T>> {
     return new Promise((resolve, reject) => {
