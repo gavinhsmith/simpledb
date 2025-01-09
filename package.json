@@ -68,6 +68,7 @@
     "dev:build:module": "tsc --project ./config/tsconfig.build.json --watch",
     "dev:build:tests": "tsc --project ./config/tsconfig.test.json --watch",
     "dev:build:docs": "typedoc --watch --preserveWatchOutput --options ./config/typedoc.main.json",
+    "dev:docs": "serve ./docs/web",
     "dev:nodemon": "nodemon --config ./config/nodemon.json ./tests/index.test.js",
     "dev": "npm-run-all build:module build:tests --parallel dev:build:module dev:build:tests dev:nodemon --print-label",
     "git:pre-commit": "echo Running Pre-Commit Checks... [If you see this in VSCode they failed lol :P]"

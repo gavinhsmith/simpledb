@@ -127,8 +127,6 @@ export class Column<T, K extends EntryData> {
         .catch(reject);
     });
   }
-
-  public fakeFunc() {}
 }
 
 // Export Defaults
