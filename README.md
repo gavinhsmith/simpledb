@@ -39,13 +39,20 @@ db.table("users").allEntries().then((entries) => {...});
 
 ## Config
 
-Module can be configed in the `Database` constructor. Currently there are no config options.
+Module can be configed in the `Database` constructor.
 
 ```ts
-// Config will look like this when done.
-
-const db = new Database("file.db", {...});
+const db = new Database("file.db", {
+  // Enables verbose logging
+  verbose: true,
+});
 ```
+
+### Config Options
+
+| Config Option |   Type    | Default |                                 Description                                  |
+| :-----------: | :-------: | :-----: | :--------------------------------------------------------------------------: |
+|   _verbose_   | `boolean` | `false` | Enables sqlite3.verbose() and enables verbose logging throughout the module. |
 
 ## Contributing
 
