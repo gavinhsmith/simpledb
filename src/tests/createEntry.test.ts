@@ -16,7 +16,7 @@ export default function testCreateEntry(): Promise<void> {
 
     db.create<TestTableData>(
       "test_table",
-      { id: "INTENGER", entry: "TEXT", date: "INTENGER" },
+      { id: "int", entry: "string", date: "int" },
       "id"
     )
       .then(() => {

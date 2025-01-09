@@ -2,6 +2,7 @@ import SqliteWrapper from "./wrapper";
 import { Config, parseConfig } from "./config";
 import Table from "./table";
 import { TableEntry, TableColumns, FilterFunction } from "./types";
+import { getSQLType } from "./convert";
 
 /** A Simple Database. */
 export class Database {
@@ -103,9 +104,11 @@ export class Database {
             // Create the query
             let sqlQuery = `CREATE TABLE ${name}(`;
             for (let i = 0; i < column_names.length; i++) {
-              sqlQuery += `${column_names[i]} ${columns[column_names[i]]}${
-                primary_key === column_names[i] ? " PRIMARY KEY" : ""
-              }${i < column_names.length - 1 ? ", " : ""}`;
+              sqlQuery += `${column_names[i]} ${getSQLType(
+                columns[column_names[i]]
+              )}${primary_key === column_names[i] ? " PRIMARY KEY" : ""}${
+                i < column_names.length - 1 ? ", " : ""
+              }`;
             }
             sqlQuery += ");";
 

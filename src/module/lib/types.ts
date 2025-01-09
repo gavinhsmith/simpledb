@@ -1,11 +1,4 @@
-/** Different data types for the Database. */
-export type DataType =
-  | "NULL"
-  | "INTENGER"
-  | "REAL"
-  | "TEXT"
-  | "BLOB"
-  | `CHAR(${number})`;
+import { DataType } from "./convert";
 
 /** Table entries. */
 export type TableEntry = { [key: string]: unknown };

@@ -1,10 +1,6 @@
 import Column from "./column";
-import {
-  DataType,
-  TableEntry,
-  StringifiedObject,
-  FilterFunction,
-} from "./types";
+import { TableEntry, StringifiedObject, FilterFunction } from "./types";
+import { DataType, getSQLType } from "./convert";
 import SqliteWrapper from "./wrapper";
 
 /** A Table within a Database. */
@@ -102,7 +98,11 @@ export class Table<T extends TableEntry> {
             // ALTER TABLE {table} ADD COLUMN {name} {type};
 
             this.db
-              .exec(`ALTER TABLE ${this.name} ADD COLUMN ${column} ${type};`)
+              .exec(
+                `ALTER TABLE ${this.name} ADD COLUMN ${column} ${getSQLType(
+                  type
+                )};`
+              )
               .then(() => {
                 resolve(this.column<K>(column));
               })

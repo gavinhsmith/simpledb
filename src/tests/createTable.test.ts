@@ -14,11 +14,7 @@ export default function testCreateTable(): Promise<void> {
   return new Promise((resolve, reject) => {
     const db = new Database("memory", { verbose: true });
 
-    db.create<TestTableData>(
-      "test_table",
-      { id: "INTENGER", entry: "TEXT" },
-      "id"
-    )
+    db.create<TestTableData>("test_table", { id: "int", entry: "string" }, "id")
       .then(() => {
         db.table("test_table")
           .exists()
