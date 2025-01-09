@@ -12,19 +12,13 @@ type TestTableData = { id: number; entry: string };
  */
 export default function testCreateTable(): Promise<void> {
   return new Promise((resolve, reject) => {
-    const db = new Database("memory", true);
+    const db = new Database("memory", { verbose: true });
 
-    db.create<TestTableData>("test_table", [
-      {
-        name: "id",
-        type: "INTENGER",
-        isPrimaryKey: true,
-      },
-      {
-        name: "entry",
-        type: "TEXT",
-      },
-    ])
+    db.create<TestTableData>(
+      "test_table",
+      { id: "INTENGER", entry: "TEXT" },
+      "id"
+    )
       .then(() => {
         db.table("test_table")
           .exists()

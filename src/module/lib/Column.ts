@@ -1,6 +1,6 @@
 import { Database } from "sqlite3";
-import { queryOnDatabase } from "./executor.js";
-import Table, { EntryData } from "./Table.js";
+import { queryOnDatabase } from "./executor";
+import Table, { EntryData } from "./Table";
 
 /** Is used to restrict the results of the columns data to any item that would return `true` in this method. */
 export type ColumnSearcherFunction<T> = (value: T) => boolean;

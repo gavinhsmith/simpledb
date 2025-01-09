@@ -1,7 +1,7 @@
 import { Database } from "sqlite3";
-import { execOnDatabase, queryOnDatabase } from "./executor.js";
-import Column, { ColumnSearcherFunction } from "./Column.js";
-import { DataType } from "./DatabaseTypes.js";
+import { execOnDatabase, queryOnDatabase } from "./executor";
+import Column, { ColumnSearcherFunction } from "./Column";
+import { DataType } from "./DatabaseTypes";
 
 /** The base type of entry data types. */
 export interface EntryData {

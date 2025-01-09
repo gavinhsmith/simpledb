@@ -6,22 +6,11 @@
  * @author gavinhsmith
  */
 
-// Imports
-import DBDatabase from "./lib/Database.js";
-import DBTable from "./lib/Table.js";
-import DBColumn from "./lib/Column.js";
-import {
-  DataType as DBTDT,
-  TableColumnSettings as DBTTCS,
-} from "./lib/DatabaseTypes.js";
+import Database from "./lib/Database";
 
-// Exports
-export type DataType = DBTDT;
-export type TableColumnSettings = DBTTCS;
+export * from "./lib/Database";
+export * from "./lib/Table";
+export * from "./lib/Column";
+export * from "./lib/DatabaseTypes.js";
 
-export const Database = DBDatabase;
-export const Table = DBTable;
-export const Column = DBColumn;
-
-// Export Default
 export default Database;

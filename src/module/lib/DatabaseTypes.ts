@@ -8,8 +8,4 @@ export type DataType =
   | `CHAR(${number})`;
 
 /** Settings for a table column. */
-export interface TableColumnSettings {
-  name: string;
-  type: DataType;
-  isPrimaryKey?: boolean;
-}
+export type TableColumnSettings = { [key: string]: DataType };

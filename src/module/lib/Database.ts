@@ -1,23 +1,34 @@
-import { Database as DB, verbose } from "sqlite3";
-import Table, { EntryData } from "./Table.js";
-import { execOnDatabase, queryOnDatabase } from "./executor.js";
-import { TableColumnSettings } from "./DatabaseTypes.js";
+import { Database as Sqlite3Database, verbose } from "sqlite3";
+import { Config, parseConfig } from "./Config";
+import Table, { EntryData } from "./Table";
+import { execOnDatabase, queryOnDatabase } from "./executor";
+import { TableColumnSettings } from "./DatabaseTypes";
 
 /** A Simple Database. */
 export class Database {
   /** The SQLite Database instance to connect with. */
-  private db: DB;
+  private db: Sqlite3Database;
   /** The file path to the database, or "memory" if in-memory. */
   private path: string;
+  /** The config that was given to the module. */
+  private config: Config;
 
   /**
    * Constructs a Database.
    * @param file The path to the file of the database, or "memory" for an in-memory database.
-   * @param useVerbose If this database should use the verbose version of `sqlite3`, defaults to `false`.
+   * @param config Config paramaters for the database.
    */
-  constructor(file: string, useVerbose: boolean = false) {
+  constructor(file: "memory" | string, config: Config = {}) {
+    // Config Setup
+    this.config = parseConfig(config);
+
+    // Set Path
     this.path = file;
-    const DBConstructor = useVerbose ? verbose().Database : DB;
+
+    // Pick which sqlite to use.
+    const DBConstructor = config.verbose ? verbose().Database : Sqlite3Database;
+
+    // Initiate DB
     switch (file) {
       case "memory":
         this.db = new DBConstructor(":memory:");
@@ -44,15 +55,18 @@ export class Database {
    * @param table The name of the table.
    * @returns A Table instance to run operations with.
    */
-  public table<T extends EntryData>(table: string): Table<T> {
+  public table<T extends { [key: string]: unknown }>(table: string): Table<T> {
     return new Table(this.db, table);
   }
 
   /**
    * Gets the names of all the tables of the database.
+   * @param filter A filter function that restricts the results.
    * @returns All tables within the database.
    */
-  public all(): Promise<string[]> {
+  public tables(
+    filter: (name: string) => boolean = () => true
+  ): Promise<string[]> {
     return new Promise((resolve, reject) => {
       // SELECT name FROM sqlite_master WHERE type='table';
 
@@ -64,7 +78,7 @@ export class Database {
           const columns: string[] = [];
 
           for (const row of rows) {
-            columns.push(row.name);
+            if (filter(row.name)) columns.push(row.name);
           }
 
           resolve(columns);
@@ -77,12 +91,13 @@ export class Database {
    * Creates a new table on the Database.
    * @param <T> The types of data within the table.
    * @param table The name of the table.
-   * @param column_settings Definitions for the table columns.
+   * @param columns Definitions for the table columns.
    * @returns A promise that resolves into a Table instance, and rejects if an error occurs.
    */
   public create<T extends EntryData>(
     table: string,
-    column_settings: TableColumnSettings[]
+    columns: TableColumnSettings,
+    primary_key: keyof T
   ): Promise<Table<T>> {
     return new Promise((resolve, reject) => {
       this.exists(table)
@@ -90,32 +105,19 @@ export class Database {
           if (!exists) {
             // CREATE TABLE {table}({name} {type} {isPrimaryKey});
 
-            // Check that there is exactly 1 key property.
-            let seenKeyProperty = false;
-            for (const column of column_settings) {
-              if (column.isPrimaryKey != null && column.isPrimaryKey) {
-                if (!seenKeyProperty) {
-                  seenKeyProperty = true;
-                } else {
-                  reject(new Error("Too many key properties."));
-                  return;
-                }
-              }
-            }
+            const column_names = Object.keys(columns);
 
-            if (!seenKeyProperty) {
-              reject(new Error("No key property."));
+            if (!column_names.includes(<string>primary_key)) {
+              reject(new Error("Invalid key property."));
               return;
             }
 
             // Create the query
             let sqlQuery = `CREATE TABLE ${table}(`;
-            for (let i = 0; i < column_settings.length; i++) {
-              sqlQuery += `${column_settings[i].name} ${
-                column_settings[i].type
-              }${column_settings[i].isPrimaryKey ? " PRIMARY KEY" : ""}${
-                i < column_settings.length - 1 ? ", " : ""
-              }`;
+            for (let i = 0; i < column_names.length; i++) {
+              sqlQuery += `${column_names[i]} ${columns[column_names[i]]}${
+                primary_key === column_names[i] ? " PRIMARY KEY" : ""
+              }${i < column_names.length - 1 ? ", " : ""}`;
             }
             sqlQuery += ");";
 
@@ -153,10 +155,10 @@ export class Database {
   // Database Tools
 
   /**
-   * Gets the SQLite3 Database instance.
+   * Gets the SQLite3 Database instance. Mostly used for testing.
    * @returns The instace that the Database uses.
    */
-  public getSQLiteInstance(): DB {
+  public getSQLiteInstance(): Sqlite3Database {
     return this.db;
   }
 
@@ -182,7 +184,7 @@ export class Database {
    */
   public toString(): Promise<string> {
     return new Promise((resolve, reject) => {
-      this.all()
+      this.tables()
         .then((tables) => {
           resolve(`Database{path=${this.path},tables=[${tables.join(",")}]}`);
         })
