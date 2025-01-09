@@ -18,7 +18,7 @@ export class Database {
    * @param file The path to the file of the database, or "memory" for an in-memory database.
    * @param config Config paramaters for the database.
    */
-  constructor(file: "memory" | string, config: Config = {}) {
+  constructor(file: "memory" | string, config: Partial<Config> = {}) {
     // Config Setup
     this.config = parseConfig(config);
 
@@ -26,7 +26,9 @@ export class Database {
     this.path = file;
 
     // Pick which sqlite to use.
-    const DBConstructor = config.verbose ? verbose().Database : Sqlite3Database;
+    const DBConstructor = this.config.verbose
+      ? verbose().Database
+      : Sqlite3Database;
 
     // Initiate DB
     switch (file) {
@@ -90,17 +92,17 @@ export class Database {
   /**
    * Creates a new table on the Database.
    * @param <T> The types of data within the table.
-   * @param table The name of the table.
+   * @param name The name of the table.
    * @param columns Definitions for the table columns.
    * @returns A promise that resolves into a Table instance, and rejects if an error occurs.
    */
   public create<T extends EntryData>(
-    table: string,
+    name: string,
     columns: TableColumnSettings,
     primary_key: keyof T
   ): Promise<Table<T>> {
     return new Promise((resolve, reject) => {
-      this.exists(table)
+      this.exists(name)
         .then((exists) => {
           if (!exists) {
             // CREATE TABLE {table}({name} {type} {isPrimaryKey});
@@ -113,7 +115,7 @@ export class Database {
             }
 
             // Create the query
-            let sqlQuery = `CREATE TABLE ${table}(`;
+            let sqlQuery = `CREATE TABLE ${name}(`;
             for (let i = 0; i < column_names.length; i++) {
               sqlQuery += `${column_names[i]} ${columns[column_names[i]]}${
                 primary_key === column_names[i] ? " PRIMARY KEY" : ""
@@ -123,7 +125,7 @@ export class Database {
 
             execOnDatabase(this.db, sqlQuery)
               .then(() => {
-                resolve(this.table<T>(table));
+                resolve(this.table<T>(name));
               })
               .catch(reject);
           } else reject(new Error("Table already exists."));
