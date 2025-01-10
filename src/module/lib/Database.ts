@@ -41,21 +41,22 @@ export class Database {
 
   /**
    * Gets a refrence to a Table.
+   * @param <T> The table entry data.
    * @param table The name of the table.
    * @returns A Table instance to run operations with.
    */
-  public table<T extends { [key: string]: unknown }>(table: string): Table<T> {
-    return new Table(this.db, table);
+  public table<T extends TableEntry>(table: string): Table<T> {
+    return new Table(this.db, table, this.config.types);
   }
 
   /**
-   * Gets the names of all the tables of the database.
+   * Gets references to all the tables of the database.
    * @param filter A filter function that restricts the results.
    * @returns All tables within the database.
    */
   public tables(
-    filter: FilterFunction<string> = () => true
-  ): Promise<string[]> {
+    filter: FilterFunction<string> = "ALL"
+  ): Promise<Table<TableEntry>[]> {
     return new Promise((resolve, reject) => {
       // SELECT name FROM sqlite_master WHERE type='table';
 
@@ -64,13 +65,14 @@ export class Database {
           "SELECT name FROM sqlite_master WHERE type='table';"
         )
         .then((rows) => {
-          const columns: string[] = [];
+          const tables: Table<TableEntry>[] = [];
 
           for (const row of rows) {
-            if (filter(row.name)) columns.push(row.name);
+            if (filter === "ALL" || filter(row.name))
+              tables.push(this.table(row.name));
           }
 
-          resolve(columns);
+          resolve(tables);
         })
         .catch(reject);
     });
@@ -81,6 +83,7 @@ export class Database {
    * @param <T> The types of data within the table.
    * @param name The name of the table.
    * @param columns Definitions for the table columns.
+   * @param primary_key The primary key for this table.
    * @returns A promise that resolves into a Table instance, and rejects if an error occurs.
    */
   public create<T extends TableEntry>(

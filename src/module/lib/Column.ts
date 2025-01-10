@@ -41,7 +41,7 @@ export class Column<ColumnType, TableType extends TableEntry> {
       if (entry != null) {
         this.db
           .query(`SELECT * FROM $table WHERE $column=$value`, {
-            $table: this.table.getName(),
+            $table: this.table.name,
             $column: this.name,
             $value: entry,
           })
@@ -54,7 +54,7 @@ export class Column<ColumnType, TableType extends TableEntry> {
           .query<{ CNTREC: number }>(
             "SELECT COUNT(*) AS CNTREC FROM pragma_table_info($table) WHERE name=$value;",
             {
-              $table: this.table.getName(),
+              $table: this.table.name,
               $column: this.name,
             }
           )
@@ -76,12 +76,20 @@ export class Column<ColumnType, TableType extends TableEntry> {
 
       this.db
         .query<{ [key: string]: ColumnType }>(
-          `SELECT ${this.name} FROM ${this.table.getName()}`
+          `SELECT ${this.name} FROM ${this.table.name}`
         )
         .then((entries) => {
           const out: ColumnType[] = [];
           for (const entry of entries) {
-            out.push(entry[this.name]);
+            if (this.table.types[this.name] != null) {
+              out.push(
+                <ColumnType>(
+                  this.table.types[this.name].get(<ColumnType>entry[this.name])
+                )
+              );
+            } else {
+              out.push(entry[this.name]);
+            }
           }
           resolve(out);
         })
@@ -101,7 +109,15 @@ export class Column<ColumnType, TableType extends TableEntry> {
           const out: ColumnType[] = [];
 
           for (const entry of entires) {
-            if (filter(entry)) out.push(entry);
+            if (this.table.types[this.name] != null) {
+              if (
+                filter === "ALL" ||
+                filter(<ColumnType>this.table.types[this.name]?.get(entry))
+              )
+                out.push(entry);
+            } else {
+              if (filter === "ALL" || filter(entry)) out.push(entry);
+            }
           }
 
           resolve(out);

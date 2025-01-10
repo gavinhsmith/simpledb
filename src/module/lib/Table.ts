@@ -1,23 +1,44 @@
 import Column from "./column";
-import { TableEntry, StringifiedObject, FilterFunction } from "./types";
-import { DataType, getSQLType } from "./convert";
+import {
+  TableEntry,
+  FilterFunction,
+  RestrictedTableEntry,
+  ProcessedTableEntry,
+  TableEntryKeys,
+} from "./types";
+import {
+  DataType,
+  getSQLType,
+  prepareEntry,
+  processTableEntry,
+} from "./convert";
 import SqliteWrapper from "./wrapper";
+import { ExtendedTypeList } from "./extended";
 
 /** A Table within a Database. */
-export class Table<T extends TableEntry> {
+export class Table<TableType extends TableEntry> {
   /** The SQLite instance to utilize. */
   private db: SqliteWrapper;
   /** The name of the table. */
-  private name: string;
+  public readonly name: string;
+  /** A list of extended types that need to be processed. */
+  public readonly types: ExtendedTypeList;
 
   /**
    * Constructs a Table.
+   * @param <TableType> The data we expect the table to have.
    * @param wrapper The SQLite3 reference from the Database.
    * @param name The name of the table.
+   * @param types Any extended types that need to be processed.
    */
-  constructor(wrapper: SqliteWrapper, name: string) {
+  constructor(
+    wrapper: SqliteWrapper,
+    name: string,
+    types: ExtendedTypeList = {}
+  ) {
     this.db = wrapper;
     this.name = name;
+    this.types = types;
   }
 
   // Table Operations
@@ -50,19 +71,19 @@ export class Table<T extends TableEntry> {
 
   /**
    * Gets a Column instance from the table.
-   * @param <K> The type of data that is in the column.
+   * @param <ColumnType> The type of data that is in the column.
    * @param column The name of the column.
    * @returns An instance that can do operations.
    */
-  public column<K>(column: string): Column<K, T> {
+  public column<ColumnType>(column: string): Column<ColumnType, TableType> {
     return new Column(this.db, column, this);
   }
 
   /**
-   * Gets the names of all the columns of the table.
+   * Gets a reference to all columns of the table.
    * @returns All columns within the table.
    */
-  public columns(): Promise<string[]> {
+  public columns(): Promise<Column<keyof TableType, TableType>[]> {
     return new Promise((resolve, reject) => {
       // SELECT name FROM pragma_table_info({table});
 
@@ -71,10 +92,10 @@ export class Table<T extends TableEntry> {
           `SELECT name FROM pragma_table_info('${this.name}');`
         )
         .then((rows) => {
-          const columns: string[] = [];
+          const columns: Column<keyof TableType, TableType>[] = [];
 
           for (const row of rows) {
-            columns.push(row.name);
+            columns.push(this.column(row.name));
           }
 
           resolve(columns);
@@ -85,12 +106,15 @@ export class Table<T extends TableEntry> {
 
   /**
    * Creates a new column on the table.
-   * @param <K> The type of data that is in the column.
+   * @param <ColumnType> The type of data that is in the column.
    * @param column The name of the column.
    * @param type The DataType of the column.
    * @returns A promise that resolves into a Column instance, or rejects if an error occurs.
    */
-  public create<K>(column: string, type: DataType): Promise<Column<K, T>> {
+  public create<ColumnType>(
+    column: string,
+    type: DataType
+  ): Promise<Column<ColumnType, TableType>> {
     return new Promise((resolve, reject) => {
       this.exists(column)
         .then((exists) => {
@@ -104,7 +128,7 @@ export class Table<T extends TableEntry> {
                 )};`
               )
               .then(() => {
-                resolve(this.column<K>(column));
+                resolve(this.column<ColumnType>(column));
               })
               .catch(reject);
           } else reject(new Error("Column already exists."));
@@ -143,16 +167,40 @@ export class Table<T extends TableEntry> {
 
   /**
    * Gets all entries in the table.
+   * @param <FetchedColumns> The list of column keys avaliable.
+   * @param columns A list of columns to get. Defaults to all columns if empty.
    * @returns A promise that resolves into all table entries, or rejects if an error occurs.
    */
-  public all(): Promise<T[]> {
+  public all<FetchedColumns extends TableEntryKeys<TableType>>(
+    columns: FetchedColumns[] | null = null
+  ): Promise<RestrictedTableEntry<TableType, FetchedColumns>[]> {
     return new Promise((resolve, reject) => {
-      // SELECT * FROM {table};
+      // SELECT {columns} FROM {table};
 
       this.db
-        .query<T>(`SELECT * FROM ${this.name}`)
+        .query<RestrictedTableEntry<TableType, FetchedColumns>>(
+          `SELECT ${
+            columns === null || columns.length === 0 ? "*" : columns.join(",")
+          } FROM ${this.name};`
+        )
         .then((rows) => {
-          resolve(rows);
+          const out: RestrictedTableEntry<TableType, FetchedColumns>[] = [];
+
+          for (const row of rows) {
+            let cleaned: { [key: string]: unknown } = row;
+
+            for (const column of Object.keys(row)) {
+              if (this.types[column] != null) {
+                const obj: { [key: string]: unknown } = {};
+                obj[column] = this.types[column].get(cleaned[column]);
+                cleaned = { ...cleaned, ...obj };
+              }
+            }
+
+            out.push(<RestrictedTableEntry<TableType, FetchedColumns>>cleaned);
+          }
+
+          resolve(<RestrictedTableEntry<TableType, FetchedColumns>[]>out);
         })
         .catch(reject);
     });
@@ -160,17 +208,27 @@ export class Table<T extends TableEntry> {
 
   /**
    * Gets entries from the table.
-   * @param filter A method returns true for any row in the table that should be included. Defaults to all.
+   * @param <FetchedColumns> The list of column keys avaliable.
+   * @param columns A list of columns to get. Defaults to all columns if empty.
+   * @param filter The predefined filter tag or filter function to use. Defaults to `"ALL"`.
    * @returns A promise that resolves into the requested table entries, or rejects if an error occurs.
    */
-  public get(filter: FilterFunction<T> = () => true): Promise<T[]> {
+  public get<FetchedColumns extends TableEntryKeys<TableType>>(
+    columns: FetchedColumns[] | null = null,
+    filter: FilterFunction<
+      RestrictedTableEntry<TableType, FetchedColumns>
+    > = "ALL"
+  ): Promise<RestrictedTableEntry<TableType, FetchedColumns>[]> {
     return new Promise((resolve, reject) => {
-      this.all()
+      this.all<FetchedColumns>(columns)
         .then((rows) => {
-          const out: T[] = [];
+          const out: RestrictedTableEntry<TableType, FetchedColumns>[] =
+            filter === "ALL" ? rows : [];
 
-          for (const row of rows) {
-            if (filter(row)) out.push(row);
+          if (filter != "ALL") {
+            for (const row of rows) {
+              if (filter(row)) out.push(row);
+            }
           }
 
           resolve(out);
@@ -180,72 +238,19 @@ export class Table<T extends TableEntry> {
   }
 
   /**
-   * Internal helper to properly stringify a value for SQL.
-   * @private
-   *
-   * @param value The value to convert.
-   * @returns A string representation.
-   */
-  private stringifyValue(value: unknown): string {
-    const cleanStr = (value: string): string =>
-      `'${value.replace(/'/g, "\\'")}'`;
-
-    switch (typeof value) {
-      case "string":
-        return cleanStr(value);
-      case "boolean":
-        return cleanStr(value ? "T" : "F");
-      case "object":
-        return cleanStr(JSON.stringify(value));
-      case "function":
-        return this.stringifyValue(value());
-      case "symbol":
-        return cleanStr(
-          value.description != null ? value.description : value.toString()
-        );
-      case "undefined":
-        return "null";
-      default:
-        return String(value);
-    }
-  }
-
-  /**
-   * Internal helper to stringify an object's data for SQL.
-   * @private
-   *
-   * @param entry The object to stringify.
-   * @returns An object containing strings.
-   */
-  private stringifyObject<K extends { [key: string]: unknown }>(
-    object: K
-  ): StringifiedObject<K> {
-    const out: { [key: string]: string } = {};
-
-    const keys = Object.keys(object);
-
-    for (const key of keys) {
-      out[key] = this.stringifyValue(object[key]);
-    }
-
-    return <StringifiedObject<K>>(<unknown>out);
-  }
-
-  /**
    * Adds a new entry to the table.
    * @param entry The entry data to add.
    * @returns A promise that resolves into the added data, or rejects if an error occurs.
    */
-  public add(entry: T): Promise<T> {
-    console.info(this.stringifyObject(entry));
-
+  public add(entry: TableType): Promise<ProcessedTableEntry<TableType>> {
     return new Promise((resolve, reject) => {
       const keys: string[] = Object.keys(entry);
-      const cleaned = this.stringifyObject(entry);
+      const processed = processTableEntry(entry);
+      const preped = prepareEntry(processed);
       const values: string[] = [];
 
       for (const key of keys) {
-        values.push(cleaned[key]);
+        values.push(preped[key]);
       }
 
       // INSERT INTO {table} ({...columns}) VALUES ({...values});
@@ -257,7 +262,7 @@ export class Table<T extends TableEntry> {
           )});`
         )
         .then(() => {
-          resolve(entry);
+          resolve(processed);
         })
         .catch(reject);
     });
@@ -281,14 +286,6 @@ export class Table<T extends TableEntry> {
   }
 
   // Table Tools
-
-  /**
-   * Gets the Table name.
-   * @returns The name of the table.
-   */
-  public getName(): string {
-    return this.name;
-  }
 
   /**
    * Gets a string representation of the table.

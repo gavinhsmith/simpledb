@@ -7,9 +7,9 @@
  */
 
 import Database from "./lib/database";
+import ET from "./lib/extended";
 
-export * from "./lib/database";
-export * from "./lib/table";
-export * from "./lib/column";
+export type ExtendedType = ET;
+export const ExtendedType = ET;
 
 export default Database;

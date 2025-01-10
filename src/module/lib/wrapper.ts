@@ -1,7 +1,7 @@
 import { Database as SQLiteDatabase, verbose } from "sqlite3";
 
 /** Paramaters for a query. */
-type Paramaters = { [key: `$${string}`]: unknown };
+export type Paramaters = { [key: `$${string}`]: unknown };
 
 /** A wrapper around sqlite for clean up use. */
 export default class SqliteWrapper {
@@ -50,6 +50,7 @@ export default class SqliteWrapper {
 
   /**
    * Execute a query on the database, returns all fetched data.
+   * @param <T> The type of expected to return.
    * @param sql The SQL query to execute.
    * @param paramaters Paramaters to inject. Uses `$name` format in SQL.
    * @returns A promise that resolves into the requested rows, or rejects if an error occurs.
