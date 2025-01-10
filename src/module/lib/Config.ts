@@ -4,7 +4,7 @@ import { ExtendedTypeList } from "./extended";
 export interface Config {
   /** Enables sqlite3.verbose() and enables verbose logging throughout the module. Defaults to `false`.*/
   verbose: boolean;
-  /** Extended types that are avaliable throughout the Database (See {@link ExtendedType}). Defaults to none.  */
+  /** Extended types that are avaliable throughout the Database (See ExtendedType). Defaults to none.  */
   types: ExtendedTypeList;
 }
 

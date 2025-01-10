@@ -1,6 +1,6 @@
 {
   "name": "@gavinhsmith/simpledb",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "A node module for creating/managing easy-access SQLite databases.",
   "author": "gavinhsmith <me@gavinhsmith.com> (https://gavinhsmith.com)",
   "license": "MIT",
@@ -69,8 +69,6 @@
     "dev:build:tests": "tsc --project ./config/tsconfig.test.json --watch",
     "dev:build:docs": "typedoc --watch --preserveWatchOutput --options ./config/typedoc.main.json",
     "dev:docs": "serve ./docs/web",
-    "dev:nodemon": "nodemon --config ./config/nodemon.json ./tests/index.test.js",
-    "dev": "npm-run-all build:module build:tests --parallel dev:build:module dev:build:tests dev:nodemon --print-label",
-    "git:pre-commit": "echo Running Pre-Commit Checks... [If you see this in VSCode they failed lol :P]"
+    "dev": "npm-run-all build:module build:tests build:docs --parallel dev:build:module dev:build:tests dev:build:docs dev:docs --print-label"
   }
 }
