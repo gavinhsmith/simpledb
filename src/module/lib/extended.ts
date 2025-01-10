@@ -40,13 +40,4 @@ export class ExtendedType {
   }
 }
 
-export const DATE_TYPE = new ExtendedType(
-  () => {
-    return new Date().toISOString();
-  },
-  (value: unknown) => {
-    return new Date(<string>value);
-  }
-);
-
 export default ExtendedType;
