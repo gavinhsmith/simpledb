@@ -24,6 +24,8 @@ yarn add @gavinhsmith/simpledb
 
 ## Usage
 
+TypeDoc Files can be found at the [API Docs](https://gavinhsmith.github.io/simpledb/).
+
 Include in your project create a new instace of the Database class.
 
 ```ts
