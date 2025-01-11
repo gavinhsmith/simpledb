@@ -4,6 +4,8 @@
 
 Fixed issue with workflow publishing wrong directory.
 
+## Old Releases
+
 ### v1.2.0: Major module refactor.
 
 > Full Changelog: [1.0.8 -> 1.2.0](https://github.com/gavinhsmith/simpledb/compare/1.0.8...1.2.0)
