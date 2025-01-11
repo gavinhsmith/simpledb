@@ -128,12 +128,13 @@ out
 .yarn/install-state.gz
 .pnp.*
 
-# Source Files
+# Source/Editor Files
 /src/
 /dist/tests/
 /docs/
 /config/
 .github/
+.vscode/
 tsconfig.json
 tsconfig.types.json
 tsconfig.test.json
