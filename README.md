@@ -33,7 +33,7 @@ Include in your project create a new instace of the Database class.
 import Database from "@gavinhsmith/simpledb";
 
 // Load the database.
-const db = new Database("file.db");
+const db = Database("file.db");
 
 // Qeury the database.
 db.table("users").allEntries().then((entries) => {...});
@@ -44,7 +44,7 @@ db.table("users").allEntries().then((entries) => {...});
 Module can be configed in the `Database` constructor.
 
 ```ts
-const db = new Database("file.db", {
+const db = Database("file.db", {
   verbose: true,
 });
 ```
