@@ -1,38 +1,41 @@
-import Database from "@module";
+import { Database } from "../module";
 
-function rejectMessage(error: Error) {
-  return `testCreateTable(): ${error.message}\n${error}`;
-}
+const fail = (reason: Error | string): Error => {
+  return new Error(
+    `testCreateTable(): ${reason instanceof Error ? reason.message : reason}${reason instanceof Error ? reason : ""}`,
+  );
+};
 
-type TestTableData = { id: number; entry: string };
+type TestTableData = {
+  id: number;
+  entry: string;
+};
 
 /**
  * Tests the Database.create() method.
+ *
  * @returns A promise that resolves if passed, and rejects if failed.
  */
-export default function testCreateTable(): Promise<void> {
+export const testCreateTable: () => Promise<void> = () => {
   return new Promise((resolve, reject) => {
-    const db = new Database("memory", { verbose: true });
+    const db = Database("memory", { verbose: true });
 
     db.create<TestTableData>("test_table", { id: "int", entry: "string" }, "id")
       .then(() => {
-        db.table("test_table")
-          .exists()
+        db.has("test_table")
           .then((exists) => {
             if (exists) {
               resolve();
             } else {
-              reject(
-                rejectMessage(new Error('Table "test_table" was not created.'))
-              );
+              reject(fail('Table "test_table" was not created.'));
             }
           })
           .catch((error: Error) => {
-            reject(rejectMessage(error));
+            reject(fail(error));
           });
       })
       .catch((error: Error) => {
-        reject(rejectMessage(error));
+        reject(fail(error));
       });
   });
-}
+};

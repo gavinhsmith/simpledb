@@ -1,18 +1,17 @@
-import { DataType } from "./convert";
-import ExtendedType from "./extended";
+import type { DataType, Primative, SQLType } from "./convert";
 
 /** A table entry. */
 export type TableEntry = {
-  [key: string]: ExtendedType | unknown;
+  [key: string]: Primative<SQLType>;
 };
 
 /** An array of keys of an entry. */
-export type TableEntryKeys<T extends TableEntry> = Array<keyof T> | [];
+export type TableEntryKeys<T extends TableEntry> = (keyof T)[] | [];
 
 /** A table entry with content restricted by K. Allows all entries through if K is null. Should always be applied with a processed table entry. */
 export type RestrictedTableEntry<
   T extends TableEntry,
-  K extends TableEntryKeys<T>
+  K extends TableEntryKeys<T>,
 > = {
   [Prop in keyof T as Prop extends (K extends [] ? never : K[number])
     ? Prop
@@ -36,5 +35,5 @@ export type TableColumns<T extends TableEntry> = {
   [Prop in keyof T as string]: DataType;
 };
 
-/** Filter methods */
+/** Filter methods. */
 export type FilterFunction<T> = "ALL" | ((value: T) => boolean);

@@ -1,5 +1,4 @@
 {
-  // Add the DMT plugin.
   "plugin": ["@typhonjs-typedoc/typedoc-theme-dmt", "typedoc-plugin-mdn-links"],
 
   "entryPointStrategy": "expand",

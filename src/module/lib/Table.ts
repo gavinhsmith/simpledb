@@ -1,156 +1,181 @@
-import Column from "./column";
 import {
-  TableEntry,
-  FilterFunction,
-  RestrictedTableEntry,
-  ProcessedTableEntry,
-  TableEntryKeys,
-} from "./types";
-import {
-  DataType,
+  type DataType,
   getSQLType,
   prepareEntry,
   processTableEntry,
+  stringifyValue,
 } from "./convert";
-import SqliteWrapper from "./wrapper";
-import { ExtendedTypeList } from "./extended";
+import type {
+  FilterFunction,
+  ProcessedTableEntry,
+  RestrictedTableEntry,
+  TableEntry,
+  TableEntryKeys,
+} from "./types";
+import type { SqliteWrapper } from "./wrapper";
 
-/** A Table within a Database. */
-export class Table<TableType extends TableEntry> {
-  /** The SQLite instance to utilize. */
-  private db: SqliteWrapper;
-  /** The name of the table. */
-  public readonly name: string;
-  /** A list of extended types that need to be processed. */
-  public readonly types: ExtendedTypeList;
-
+export type Table<TableType extends TableEntry> = {
   /**
-   * Constructs a Table.
-   * @param <TableType> The data we expect the table to have.
-   * @param wrapper The SQLite3 reference from the Database.
-   * @param name The name of the table.
-   * @param types Any extended types that need to be processed.
-   */
-  constructor(
-    wrapper: SqliteWrapper,
-    name: string,
-    types: ExtendedTypeList = {}
-  ) {
-    this.db = wrapper;
-    this.name = name;
-    this.types = types;
-  }
-
-  // Table Operations
-
-  /**
-   * Checks if the table/a column exists.
-   * @param column The column to check, will check if the table exists if left blank.
+   * Checks if a column exists.
+   *
+   * @param column - The column to check.
    * @returns A promise that resolves to a boolean, or rejects if an error occurs.
    */
-  public exists(column?: string): Promise<boolean> {
-    // No Column: SELECT name FROM sqlite_master WHERE type='table' AND name='{table}';
-    // Column: See Column.exists().
-
-    if (column != null) {
-      return this.column(column).exists();
-    } else {
-      return new Promise((resolve, reject) => {
-        this.db
-          .query(
-            "SELECT name FROM sqlite_master WHERE type='table' AND name=$name;",
-            { $name: this.name }
-          )
-          .then((rows) => {
-            resolve(rows.length >= 1);
-          })
-          .catch(reject);
-      });
-    }
-  }
+  readonly has: (column: string) => Promise<boolean>;
 
   /**
-   * Gets a Column instance from the table.
-   * @param <ColumnType> The type of data that is in the column.
-   * @param column The name of the column.
-   * @returns An instance that can do operations.
+   * Gets a list of all columns in the table.
+   *
+   * @returns A promise that resolves into a string array, or rejects if an error occurs.
    */
-  public column<ColumnType>(column: string): Column<ColumnType, TableType> {
-    return new Column(this.db, column, this);
-  }
-
-  /**
-   * Gets a reference to all columns of the table.
-   * @returns All columns within the table.
-   */
-  public columns(): Promise<Column<keyof TableType, TableType>[]> {
-    return new Promise((resolve, reject) => {
-      // SELECT name FROM pragma_table_info({table});
-
-      this.db
-        .query<{ name: string }>(
-          `SELECT name FROM pragma_table_info('${this.name}');`
-        )
-        .then((rows) => {
-          const columns: Column<keyof TableType, TableType>[] = [];
-
-          for (const row of rows) {
-            columns.push(this.column(row.name));
-          }
-
-          resolve(columns);
-        })
-        .catch(reject);
-    });
-  }
+  readonly columns: () => Promise<string[]>;
 
   /**
    * Creates a new column on the table.
-   * @param <ColumnType> The type of data that is in the column.
-   * @param column The name of the column.
-   * @param type The DataType of the column.
-   * @returns A promise that resolves into a Column instance, or rejects if an error occurs.
+   *
+   * @param column - The name of the column.
+   * @param type - The DataType of the column.
+   * @returns A promise that resolves when the column is created, or rejects if an error occurs.
    */
-  public create<ColumnType>(
-    column: string,
-    type: DataType
-  ): Promise<Column<ColumnType, TableType>> {
-    return new Promise((resolve, reject) => {
-      this.exists(column)
-        .then((exists) => {
-          if (!exists) {
-            // ALTER TABLE {table} ADD COLUMN {name} {type};
-
-            this.db
-              .exec(
-                `ALTER TABLE ${this.name} ADD COLUMN ${column} ${getSQLType(
-                  type
-                )};`
-              )
-              .then(() => {
-                resolve(this.column<ColumnType>(column));
-              })
-              .catch(reject);
-          } else reject(new Error("Column already exists."));
-        })
-        .catch(reject);
-    });
-  }
+  readonly create: (column: string, type: DataType) => Promise<void>;
 
   /**
    * Drops a column from the table.
-   * @param column The name of the column.
+   *
+   * @param column - The name of the column.
    * @returns A promise that resolves when the column is dropped, or rejects if an error occured.
    */
-  public drop(column: string): Promise<void> {
+  readonly drop: (column: string) => Promise<void>;
+
+  /**
+   * Gets all entries in the table.
+   *
+   * @param FetchedColumns - The list of column keys avaliable.
+   * @param columns - A list of columns to get. Defaults to all columns if empty.
+   * @returns A promise that resolves into all table entries, or rejects if an error occurs.
+   */
+  readonly all: <FetchedColumns extends TableEntryKeys<TableEntry>>(
+    ...columns: FetchedColumns[]
+  ) => Promise<RestrictedTableEntry<TableType, FetchedColumns>[]>;
+
+  /**
+   * Gets entries from the table.
+   *
+   * @param FetchedColumns - The list of column keys avaliable.
+   * @param columns - A list of columns to get. Defaults to all columns if empty.
+   * @param filter - The predefined filter tag or filter function to use. Defaults to `"ALL"`.
+   * @returns A promise that resolves into the requested table entries, or rejects if an error occurs.
+   */
+  readonly get: <FetchedColumns extends TableEntryKeys<TableEntry>>(
+    columns: FetchedColumns[],
+    filter?: FilterFunction<RestrictedTableEntry<TableType, FetchedColumns>>,
+  ) => Promise<RestrictedTableEntry<TableType, FetchedColumns>[]>;
+
+  /**
+   * Adds a new entry to the table.
+   *
+   * @param entry - The entry data to add.
+   * @returns A promise that resolves into the added data, or rejects if an error occurs.
+   */
+  readonly add: (entry: TableType) => Promise<ProcessedTableEntry<TableType>>;
+
+  /**
+   * Deletes all entries from the table where a key equals a value.
+   *
+   * @param column - The column in which to check the data from.
+   * @param value - The value in which to look for.
+   * @returns A promise that resolves when successful, or rejects if an error occurs.
+   */
+  readonly delete: (column: string, value: unknown) => Promise<void>;
+
+  /**
+   * Gets a string representation of the table.
+   *
+   * @returns A promise that resolves into a string, or rejects if an error occurs.
+   */
+  readonly toString: () => Promise<string>;
+};
+
+/**
+ * Constructs a Table.
+ *
+ * @param wrapper - The SQLite3 reference from the Database.
+ * @param name - The name of the table.
+ */
+export const Table = <TableType extends TableEntry>(
+  wrapper: SqliteWrapper,
+  name: string,
+): Table<TableType> => {
+  const has: Table<TableType>["has"] = (column) => {
     return new Promise((resolve, reject) => {
-      this.exists(column)
+      wrapper
+        .query<{ CNTREC: number }>(
+          "SELECT COUNT(*) AS CNTREC FROM pragma_table_info($table) WHERE name=$value;",
+          {
+            $table: name,
+            $column: column,
+          },
+        )
+        .then((rows) => {
+          resolve(rows[0].CNTREC >= 1);
+        })
+        .catch(reject);
+    });
+  };
+
+  const columns: Table<TableType>["columns"] = () => {
+    return new Promise((resolve, reject) => {
+      // SELECT name FROM pragma_table_info({table});
+
+      wrapper
+        .query<{ name: string }>(
+          `SELECT name FROM pragma_table_info('${name}');`,
+        )
+        .then((rows) => {
+          const cols: string[] = [];
+
+          for (const row of rows) {
+            cols.push(row.name);
+          }
+
+          resolve(cols);
+        })
+        .catch(reject);
+    });
+  };
+
+  const create: Table<TableType>["create"] = (column, type) => {
+    return new Promise((resolve, reject) => {
+      has(column)
+        .then((exists) => {
+          if (exists) {
+            reject(new Error("Column already exists."));
+          } else {
+            // ALTER TABLE {table} ADD COLUMN {name} {type};
+
+            wrapper
+              .exec(
+                `ALTER TABLE ${name} ADD COLUMN ${column} ${getSQLType(type)};`,
+              )
+              .then(() => {
+                resolve();
+              })
+              .catch(reject);
+          }
+        })
+        .catch(reject);
+    });
+  };
+
+  const drop: Table<TableType>["drop"] = (column) => {
+    return new Promise((resolve, reject) => {
+      has(column)
         .then((exists) => {
           if (exists) {
             // ALTER TABLE {table} DROP COLUMN {name};
 
-            this.db
-              .exec(`ALTER TABLE ${this.name} DROP COLUMN ${column};`)
+            wrapper
+              .exec(`ALTER TABLE ${name} DROP COLUMN ${column};`)
               .then(() => {
                 resolve();
               })
@@ -161,73 +186,46 @@ export class Table<TableType extends TableEntry> {
         })
         .catch(reject);
     });
-  }
+  };
 
-  // Table Data Operations
-
-  /**
-   * Gets all entries in the table.
-   * @param <FetchedColumns> The list of column keys avaliable.
-   * @param columns A list of columns to get. Defaults to all columns if empty.
-   * @returns A promise that resolves into all table entries, or rejects if an error occurs.
-   */
-  public all<FetchedColumns extends TableEntryKeys<TableType>>(
-    columns: FetchedColumns[] | null = null
-  ): Promise<RestrictedTableEntry<TableType, FetchedColumns>[]> {
+  const all: Table<TableType>["all"] = <
+    FetchedColumns extends TableEntryKeys<TableEntry>,
+  >(
+    ...cols: FetchedColumns[]
+  ): Promise<RestrictedTableEntry<TableType, FetchedColumns>[]> => {
     return new Promise((resolve, reject) => {
       // SELECT {columns} FROM {table};
 
-      this.db
+      wrapper
         .query<RestrictedTableEntry<TableType, FetchedColumns>>(
-          `SELECT ${
-            columns === null || columns.length === 0 ? "*" : columns.join(",")
-          } FROM ${this.name};`
+          `SELECT ${cols.length === 0 ? "*" : cols.join(",")} FROM ${name};`,
         )
         .then((rows) => {
-          const out: RestrictedTableEntry<TableType, FetchedColumns>[] = [];
-
-          for (const row of rows) {
-            let cleaned: { [key: string]: unknown } = row;
-
-            for (const column of Object.keys(row)) {
-              if (this.types[column] != null) {
-                const obj: { [key: string]: unknown } = {};
-                obj[column] = this.types[column].get(cleaned[column]);
-                cleaned = { ...cleaned, ...obj };
-              }
-            }
-
-            out.push(<RestrictedTableEntry<TableType, FetchedColumns>>cleaned);
-          }
-
-          resolve(<RestrictedTableEntry<TableType, FetchedColumns>[]>out);
+          resolve(rows);
         })
         .catch(reject);
     });
-  }
+  };
 
-  /**
-   * Gets entries from the table.
-   * @param <FetchedColumns> The list of column keys avaliable.
-   * @param columns A list of columns to get. Defaults to all columns if empty.
-   * @param filter The predefined filter tag or filter function to use. Defaults to `"ALL"`.
-   * @returns A promise that resolves into the requested table entries, or rejects if an error occurs.
-   */
-  public get<FetchedColumns extends TableEntryKeys<TableType>>(
-    columns: FetchedColumns[] | null = null,
-    filter: FilterFunction<
-      RestrictedTableEntry<TableType, FetchedColumns>
-    > = "ALL"
-  ): Promise<RestrictedTableEntry<TableType, FetchedColumns>[]> {
+  const get: Table<TableType>["get"] = <
+    FetchedColumns extends TableEntryKeys<TableEntry>,
+  >(
+    cols: FetchedColumns[],
+    filter:
+      | FilterFunction<RestrictedTableEntry<TableType, FetchedColumns>>
+      | undefined,
+  ): Promise<RestrictedTableEntry<TableType, FetchedColumns>[]> => {
     return new Promise((resolve, reject) => {
-      this.all<FetchedColumns>(columns)
+      all(...cols)
         .then((rows) => {
           const out: RestrictedTableEntry<TableType, FetchedColumns>[] =
-            filter === "ALL" ? rows : [];
+            filter === undefined || filter === "ALL" ? rows : [];
 
-          if (filter != "ALL") {
+          if (filter !== undefined && filter !== "ALL") {
             for (const row of rows) {
-              if (filter(row)) out.push(row);
+              if (filter(row)) {
+                out.push(row);
+              }
             }
           }
 
@@ -235,14 +233,9 @@ export class Table<TableType extends TableEntry> {
         })
         .catch(reject);
     });
-  }
+  };
 
-  /**
-   * Adds a new entry to the table.
-   * @param entry The entry data to add.
-   * @returns A promise that resolves into the added data, or rejects if an error occurs.
-   */
-  public add(entry: TableType): Promise<ProcessedTableEntry<TableType>> {
+  const add: Table<TableType>["add"] = (entry) => {
     return new Promise((resolve, reject) => {
       const keys: string[] = Object.keys(entry);
       const processed = processTableEntry(entry);
@@ -255,52 +248,49 @@ export class Table<TableType extends TableEntry> {
 
       // INSERT INTO {table} ({...columns}) VALUES ({...values});
 
-      this.db
+      wrapper
         .exec(
-          `INSERT INTO ${this.name} (${keys.join(",")}) VALUES (${values.join(
-            ","
-          )});`
+          `INSERT INTO ${name} (${keys.join(",")}) VALUES (${values.join(
+            ",",
+          )});`,
         )
         .then(() => {
           resolve(processed);
         })
         .catch(reject);
     });
-  }
+  };
 
-  /**
-   * Deletes all entries from the table where a key equals a value.
-   * @param column The column in which to check the data from.
-   * @param value The value in which to look for.
-   * @returns A promise that resolves when successful, or rejects if an error occurs.
-   */
-  public delete(column: string, value: unknown): Promise<void> {
+  const deleteFunc: Table<TableType>["delete"] = (column, value) => {
     return new Promise((resolve, reject) => {
       // DELETE FROM {table} WHERE {column} = {value};
 
-      this.db
-        .exec(`DELETE FROM ${this.name} WHERE ${column} = ${value};`)
+      wrapper
+        .exec(`DELETE FROM ${name} WHERE ${column} = ${stringifyValue(value)};`)
         .then(resolve)
         .catch(reject);
     });
-  }
+  };
 
-  // Table Tools
-
-  /**
-   * Gets a string representation of the table.
-   * @returns A promise that resolves into a string, or rejects if an error occurs.
-   */
-  public toString(): Promise<string> {
+  const toString: Table<TableType>["toString"] = () => {
     return new Promise((resolve, reject) => {
-      this.columns()
-        .then((columns) => {
-          resolve(`Table{name=${this.name},columns=[${columns.join(",")}]}`);
+      columns()
+        .then((cols) => {
+          resolve(`Table{name=${name},columns=[${cols.join(",")}]}`);
         })
         .catch(reject);
     });
-  }
-}
+  };
 
-// Export Default
-export default Table;
+  return {
+    has,
+    columns,
+    create,
+    drop,
+    all,
+    get,
+    add,
+    delete: deleteFunc,
+    toString,
+  };
+};

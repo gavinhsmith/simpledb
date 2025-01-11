@@ -1,5 +1,8 @@
-import { ProcessedTableEntry, SQLSafeTableEntry, TableEntry } from "./types";
-import ExtendedType from "./extended";
+import type {
+  ProcessedTableEntry,
+  SQLSafeTableEntry,
+  TableEntry,
+} from "./types";
 
 /** Data types recognized by SQLite. */
 export type SQLType =
@@ -23,93 +26,93 @@ export type DataType =
 export type Primative<T extends SQLType> = T extends "NULL"
   ? null
   : T extends "INTEGER" | "REAL"
-  ? number
-  : T extends "CHAR(1)"
-  ? boolean
-  : string;
+    ? number
+    : T extends "CHAR(1)"
+      ? boolean
+      : string;
 
 /**
  * Gets the SQLite type from either a simple type or another SQLite type.
- * @param type The type to load.
+ *
+ * @param type - The type to load.
  * @returns A type compatable with SQLite.
  */
-export function getSQLType(type: DataType): SQLType {
+export const getSQLType: (type: DataType) => SQLType = (type) => {
   switch (type) {
-    case "string":
+    case "string": {
       return "TEXT";
-    case "int":
+    }
+    case "int": {
       return "INTEGER";
-    case "float":
+    }
+    case "float": {
       return "REAL";
-    case "boolean":
+    }
+    case "boolean": {
       return "CHAR(1)";
-    case "null":
+    }
+    case "null": {
       return "NULL";
-    default:
+    }
+    default: {
       return type;
+    }
   }
-}
+};
 
 /**
  * Process all runtime (function-based) entries.
  *
- * @param entry The entry to process.
+ * @param entry - The entry to process.
  * @returns The entry with all the data loaded.
  */
-export function processTableEntry<T extends TableEntry>(
-  entry: T
-): ProcessedTableEntry<T> {
-  const out: TableEntry = {};
-  const keys = Object.keys(entry);
+export const processTableEntry = <T extends TableEntry>(
+  entry: T,
+): ProcessedTableEntry<T> => {
+  return entry as ProcessedTableEntry<T>;
+};
 
-  for (const key of keys) {
-    if (entry[key] instanceof ExtendedType) {
-      out[key] = <ExtendedType>entry[key].set();
-    } else {
-      out[key] = entry[key];
-    }
-  }
-
-  return <ProcessedTableEntry<T>>out;
-}
+const cleanStringForSQL = (value: string): string =>
+  `'${value.replaceAll("'", "\\'")}'`;
 
 /**
  * Helper to properly stringify a value for SQL.
  *
- * @param value The value to convert.
+ * @param value - The value to convert.
  * @returns An SQL-safe string representation.
  */
-function stringifyValue(value: unknown): string {
-  /** Cleans a string value. */
-  const cleanStr = (value: string): string => `'${value.replace(/'/g, "\\'")}'`;
-
+export const stringifyValue = (value: unknown): string => {
   switch (typeof value) {
-    case "string":
-      return cleanStr(value);
-    case "boolean":
-      return cleanStr(value ? "T" : "F");
-    case "symbol":
-      return cleanStr(
-        value.description != null ? value.description : value.toString()
-      );
-    case "undefined":
+    case "string": {
+      return cleanStringForSQL(value);
+    }
+    case "boolean": {
+      return cleanStringForSQL(value ? "T" : "F");
+    }
+    case "symbol": {
+      return cleanStringForSQL(value.description ?? value.toString());
+    }
+    case "undefined": {
       return "null";
-    case "object":
-      return cleanStr(JSON.stringify(value));
-    default:
+    }
+    case "object": {
+      return cleanStringForSQL(JSON.stringify(value));
+    }
+    default: {
       return String(value);
+    }
   }
-}
+};
 
 /**
  * Prepares an entry for being sent in a SQL query.
  *
- * @param entry The entry to prepare.
+ * @param entry - The entry to prepare.
  * @returns An entry containing stringified values.
  */
-export function prepareEntry<T extends TableEntry>(
-  entry: T
-): SQLSafeTableEntry<T> {
+export const prepareEntry = <T extends TableEntry>(
+  entry: ProcessedTableEntry<T>,
+): SQLSafeTableEntry<T> => {
   const out: TableEntry = {};
 
   const keys = Object.keys(entry);
@@ -118,5 +121,5 @@ export function prepareEntry<T extends TableEntry>(
     out[key] = stringifyValue(entry[key]);
   }
 
-  return <SQLSafeTableEntry<T>>out;
-}
+  return out as SQLSafeTableEntry<T>;
+};

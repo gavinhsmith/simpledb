@@ -24,12 +24,12 @@ jobs:
       - name: "Install Packages"
         run: yarn install
       - name: "Build Module"
-        run: yarn run build:module --print-label
+        run: yarn run build
       - name: "Export Module as Artifact"
         uses: actions/upload-artifact@v4
         with:
           name: dist
-          path: dist
+          path: dist/module
       - name: "[ACT] Uninstall Yarn"
         if: ${{env.ACT}}
         run: npm uninstall -g yarn
@@ -55,8 +55,6 @@ jobs:
       - name: "[ACT] Install Yarn"
         if: ${{env.ACT}}
         run: npm install -g yarn
-      - name: "Install Packages"
-        run: yarn install
       - name: ${{fromJSON('{"false":"Publish Package (Dry Run)","true":"Publish Package"}')[!env.ACT]}}
         if: ${{!env.ACT}}
         run: yarn publish --access=public
@@ -87,8 +85,6 @@ jobs:
       - name: "[ACT] Install Yarn"
         if: ${{env.ACT}}
         run: npm install -g yarn
-      - name: "Install Packages"
-        run: yarn install
       - name: ${{fromJSON('{"false":"Publish Package (Dry Run)","true":"Publish Package"}')[!env.ACT]}}
         if: ${{!env.ACT}}
         run: yarn publish --access=public

@@ -130,13 +130,16 @@ out
 
 # Source Files
 /src/
-/tests/
+/dist/tests/
 /docs/
 /config/
 .github/
 tsconfig.json
-eslint.config.mjs
-nodemon.json
+tsconfig.types.json
+tsconfig.test.json
+eslint.config.ts
+.prettierignore
+.prettierrc.json
 
 # DB Files
 *.db

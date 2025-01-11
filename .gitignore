@@ -130,8 +130,8 @@ out
 
 # Builds
 /dist/
-/tests/
 /docs/
+/src/**/*.js
 
 # DB Files
 *.db

@@ -1,10 +1,14 @@
 {
-  "extends": ["./config/tsconfig.base"],
   "compilerOptions": {
-    "paths": {
-      "@module/*": ["./src/module/*"],
-      "@module": ["./src/module/index.ts"]
-    }
+    "lib": ["ES2023"],
+    "module": "CommonJS",
+    "target": "ES2023",
+
+    "outDir": "./dist",
+    "rootDir": "./src",
+
+    "strict": true,
+    "removeComments": true
   },
-  "include": ["./src/tests"]
+  "include": ["./src"]
 }

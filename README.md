@@ -46,16 +46,14 @@ Module can be configed in the `Database` constructor.
 ```ts
 const db = new Database("file.db", {
   verbose: true,
-  types: ExtendedType.DATES;
 });
 ```
 
 ### Config Options
 
-| Config Option |              Type               | Default |                                   Description                                    |
-| :-----------: | :-----------------------------: | :-----: | :------------------------------------------------------------------------------: |
-|   _verbose_   |            `boolean`            | `false` |   Enables sqlite3.verbose() and enables verbose logging throughout the module.   |
-|    _types_    | `{[key: string]: ExtendedType}` |  `{}`   | Exteneded types that allow extra functionallity beyond the regular Sqlite types. |
+| Config Option |   Type    | Default |                                 Description                                  |
+| :-----------: | :-------: | :-----: | :--------------------------------------------------------------------------: |
+|   _verbose_   | `boolean` | `false` | Enables sqlite3.verbose() and enables verbose logging throughout the module. |
 
 ## Contributing
 
