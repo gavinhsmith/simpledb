@@ -28,7 +28,7 @@ jobs:
       - name: "Export Module as Artifact"
         uses: actions/upload-artifact@v4
         with:
-          name: dist
+          name: dist/module
           path: dist/module
       - name: "[ACT] Uninstall Yarn"
         if: ${{env.ACT}}

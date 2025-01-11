@@ -1,6 +1,12 @@
-## v1.2.0: Major module refactor.
+## v1.2.1: Patch release
 
-> Full Changelog: [1.0.8 -> 1.2.0](https://github.com/gavinhsmith/simpledb/compare/1.0.8...1.1.0)
+> Full Changelog: [1.0.8 -> 1.2.0](https://github.com/gavinhsmith/simpledb/compare/1.2.0...1.2.1)
+
+Fixed issue with workflow publishing wrong directory.
+
+### v1.2.0: Major module refactor.
+
+> Full Changelog: [1.0.8 -> 1.2.0](https://github.com/gavinhsmith/simpledb/compare/1.0.8...1.2.0)
 
 **THIS IS A BREAKING CHANGE**
 
