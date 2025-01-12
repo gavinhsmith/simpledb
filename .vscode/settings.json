@@ -5,9 +5,7 @@
     "typescript",
     "typescriptreact"
   ],
-  "eslint.options": {
-    "flags": ["unstable_ts_config"]
-  },
+  "eslint.options": {},
   "editor.codeActionsOnSave": {
     "source.organizeImports": "never",
     "source.fixAll.eslint": "explicit"
