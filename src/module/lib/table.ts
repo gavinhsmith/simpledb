@@ -2,7 +2,9 @@ import {
   type DataType,
   getSQLType,
   prepareEntry,
+  type Primative,
   processTableEntry,
+  type SQLType,
   stringifyValue,
 } from "./convert";
 import type {
@@ -78,6 +80,20 @@ export type Table<TableType extends TableEntry> = {
    * @returns A promise that resolves into the added data, or rejects if an error occurs.
    */
   readonly add: (entry: TableType) => Promise<ProcessedTableEntry<TableType>>;
+
+  /**
+   * Updates an entry in the table.
+   *
+   * @param column - The column that contains the value to check if equals.
+   * @param equals - The value that will be equal in any entry we want to effect.
+   * @param values - The values to update the entries with.
+   * @returns A promise that resolves into the updated entries.
+   */
+  readonly update: (
+    column: string,
+    equals: Primative<SQLType>,
+    values: Partial<TableType>,
+  ) => Promise<TableType[]>;
 
   /**
    * Deletes all entries from the table where a key equals a value.
@@ -261,6 +277,49 @@ export const Table = <TableType extends TableEntry>(
     });
   };
 
+  const update: Table<TableType>["update"] = (
+    columnName,
+    equalsValue,
+    entryUpdates,
+  ) => {
+    return new Promise((resolve, reject) => {
+      // Query: UPDATE {table} SET {...entry.key} = {...entry.value} WHERE {column} = {value};
+
+      const newValues: string[] = [];
+
+      for (const key of Object.keys(entryUpdates)) {
+        newValues.push(`${key} = ${stringifyValue(entryUpdates[key])}`);
+      }
+
+      wrapper
+        .query<TableType>(`SELECT * FROM ${name};`)
+        .then((oldRows) => {
+          wrapper
+            .exec(
+              `UPDATE ${name} SET ${newValues.join(", ")} WHERE ${columnName} = ${stringifyValue(equalsValue)};`,
+            )
+            .then(() => {
+              wrapper
+                .query<TableType>(`SELECT * FROM ${name};`)
+                .then((rows) => {
+                  const out: TableType[] = [];
+
+                  for (const [i, row] of rows.entries()) {
+                    if (row !== oldRows[i]) {
+                      out.push(row);
+                    }
+                  }
+
+                  resolve(out);
+                })
+                .catch(reject);
+            })
+            .catch(reject);
+        })
+        .catch(reject);
+    });
+  };
+
   const deleteFunc: Table<TableType>["delete"] = (column, value) => {
     return new Promise((resolve, reject) => {
       // DELETE FROM {table} WHERE {column} = {value};
@@ -290,6 +349,7 @@ export const Table = <TableType extends TableEntry>(
     all,
     get,
     add,
+    update,
     delete: deleteFunc,
     toString,
   };

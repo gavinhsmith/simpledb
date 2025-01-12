@@ -81,7 +81,6 @@ export const testCreateEntry: () => Promise<void> = () => {
               .get([], "ALL")
               .then((rows) => {
                 if (rows.length === 4) {
-                  console.debug(rows);
                   resolve();
                 } else {
                   reject(fail("Restriction failed."));
