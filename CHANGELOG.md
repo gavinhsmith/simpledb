@@ -1,10 +1,16 @@
-## v1.2.1: Patch release
+## v1.2.2: Added `Database.update()`
 
-> Full Changelog: [1.0.8 -> 1.2.0](https://github.com/gavinhsmith/simpledb/compare/1.2.0...1.2.1)
+> Full Changelog: [1.2.1 -> 1.2.2](https://github.com/gavinhsmith/simpledb/compare/1.2.1...1.2.2)
 
-Fixed issue with workflow publishing wrong directory.
+Added `Database.update(column: string, equals: unknown, replacements: Partial<Entry>): Promise<Entry[]>`, allowing updates on the database. Returns a list of all affected rows.
 
 ## Old Releases
+
+### v1.2.1: Patch release
+
+> Full Changelog: [1.2.0 -> 1.2.1](https://github.com/gavinhsmith/simpledb/compare/1.2.0...1.2.1)
+
+Fixed issue with workflow publishing wrong directory.
 
 ### v1.2.0: Major module refactor.
 
